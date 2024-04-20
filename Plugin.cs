@@ -22,7 +22,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.10";
+        private const string modVersion = "1.1.12";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -93,6 +93,8 @@ namespace PiggyVarietyMod
 
             revolverPrice = (int)base.Config.Bind<int>("Store", "RevolverPrice", 0, "(Recommended 0 or 550) Set the price of the revolver. If 0, removes the item from the store list.").Value;
             revolverAmmoPrice = (int)base.Config.Bind<int>("Store", "RevolverAmmoPrice", 0, "(Recommended 0 or 30) Set the price of the revolver ammo. If 0, removes the item from the store list.").Value;
+
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(teslaGatePrefab);
 
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(revolverItem.spawnPrefab);
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(revolverAmmoItem.spawnPrefab);

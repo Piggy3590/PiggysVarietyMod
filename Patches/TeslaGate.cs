@@ -23,6 +23,7 @@ using UnityEngine.Rendering;
 using UnityEngine.ParticleSystemJobs;
 using static System.Net.Mime.MediaTypeNames;
 using System.Collections;
+using Unity.Netcode;
 
 namespace PiggyVarietyMod.Patches
 {
@@ -51,6 +52,7 @@ namespace PiggyVarietyMod.Patches
 
         void Start()
         {
+            //this.GetComponent<TerminalAccessibleObject>().terminalCodeEvent.AddListener(ForceTeslaTrigger);
             telegraphParticle = this.transform.GetChild(0).GetComponent<ParticleSystem>();
             idleParticle = this.transform.GetChild(1).GetComponent<ParticleSystem>();
 
@@ -115,7 +117,7 @@ namespace PiggyVarietyMod.Patches
                 StopCoroutine(EngageTeslaCoroutine());
             }
         }
-            
+
         private IEnumerator EngageTeslaCoroutine()
         {
             coroutineRunning = true;
@@ -141,6 +143,39 @@ namespace PiggyVarietyMod.Patches
             killTrigger.gameObject.SetActive(false);
             yield return new WaitForSeconds(0.6f);
             coroutineRunning = false;
+            yield break;
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ForceTeslaTriggerServerRpc()
+        {
+            ForceTeslaTriggerClientRpc();
+        }
+
+        [ClientRpc]
+        public void ForceTeslaTriggerClientRpc()
+        {
+            StartCoroutine(InstantTeslaCoroutine());
+        }
+
+        public void ForceTeslaTrigger(PlayerControllerB player)
+        {
+            ForceTeslaTriggerServerRpc();
+        }
+
+        private IEnumerator InstantTeslaCoroutine()
+        {
+            killTrigger.gameObject.SetActive(true);
+            foreach (PlayerControllerB player in engagingPlayerList)
+            {
+                if (player == StartOfRound.Instance.localPlayerController)
+                {
+                    HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
+                }
+            }
+            crackSource.PlayOneShot(Plugin.teslaCrack);
+            yield return new WaitForSeconds(0.65f);
+            killTrigger.gameObject.SetActive(false);
             yield break;
         }
     }
