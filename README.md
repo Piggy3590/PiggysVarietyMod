@@ -9,7 +9,6 @@ Also includes separate/add-on content from [LC_Office](https://thunderstore.io/c
 ## Features
 
 ### Tesla Gate
-### Disabled due to critical issue!
 - Has a chance to spawn instead of a secure door.
 ![Preview1](https://i.imgur.com/hvGazNs.png)
 
