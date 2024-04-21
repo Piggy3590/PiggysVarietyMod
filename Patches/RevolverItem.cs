@@ -488,6 +488,17 @@ namespace PiggyVarietyMod.Patches
         public override void ItemInteractLeftRight(bool right)
         {
             base.ItemInteractLeftRight(right);
+            foreach (MeshRenderer ammo in revolverAmmos)
+            {
+                ammo.enabled = false;
+            }
+            if (ammosLoaded > 0)
+            {
+                for (int i = 0; i <= ammosLoaded - 1; i++)
+                {
+                    revolverAmmos[i].enabled = true;
+                }
+            }
             if (playerHeldBy == null)
             {
                 return;

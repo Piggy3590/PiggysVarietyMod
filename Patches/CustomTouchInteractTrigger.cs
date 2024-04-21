@@ -58,35 +58,47 @@ namespace PiggyVarietyMod.Patches
 
             if (collider.transform.parent.GetComponent<EnemyAICollisionDetect>() != null)
             {
-                EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
-                if (isIdleTrigger)
+                if (collider.gameObject.GetComponent<EnemyAICollisionDetect>())
                 {
-                    teslaGate.activateList.Add(collider.gameObject);
-                }
-                if (isKillTrigger)
-                {
-                    if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
+                    EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
+                    IHittable hittable;
+                    if (enemyDetection.transform.TryGetComponent<IHittable>(out hittable))
                     {
-                        enemyDetection.mainScript.KillEnemyOnOwnerClient(false);
+                        Plugin.mls.LogInfo("Tesla gate detected enemy: " + enemyDetection.mainScript.enemyType.enemyName + ", Idle: " + isIdleTrigger + ", Kill: " + isKillTrigger);
+                        if (isIdleTrigger)
+                        {
+                            teslaGate.activateList.Add(collider.gameObject);
+                        }
+                        if (isKillTrigger)
+                        {
+                            if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
+                            {
+                                hittable.Hit(5, Vector3.zero, null, true, -1);
+                            }
+                        }
+                        else
+                        {
+                            teslaGate.engagingList.Add(collider.gameObject);
+                        }
                     }
-                }
-                else
-                {
-                    teslaGate.engagingList.Add(collider.gameObject);
                 }
             }
         }
 
         void OnTriggerStay(Collider collider)
         {
-            if (collider.transform.parent.GetComponent<EnemyAICollisionDetect>() != null)
+            if (isKillTrigger)
             {
-                EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
-                if (isKillTrigger)
+                if (collider.gameObject.GetComponent<EnemyAICollisionDetect>())
                 {
-                    if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
+                    EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
+                    IHittable hittable;
+                    if (enemyDetection.transform.TryGetComponent<IHittable>(out hittable))
                     {
-                        enemyDetection.mainScript.KillEnemyOnOwnerClient(false);
+                        if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
+                        {
+                            hittable.Hit(5, Vector3.zero, null, true, -1);
+                        }
                     }
                 }
             }

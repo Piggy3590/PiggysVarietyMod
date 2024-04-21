@@ -32,7 +32,7 @@ namespace PiggyVarietyMod.Patches
         public ParticleSystem telegraphParticle;
         public ParticleSystem idleParticle;
 
-        public InteractTrigger killTrigger;
+        public GameObject killTrigger;
 
         public CustomTouchInteractTrigger idleCTI;
         public CustomTouchInteractTrigger crackCTI;
@@ -60,7 +60,7 @@ namespace PiggyVarietyMod.Patches
             idleSource = this.transform.GetChild(4).GetChild(1).GetComponent<AudioSource>();
             crackSource = this.transform.GetChild(4).GetChild(2).GetComponent<AudioSource>();
 
-            killTrigger = this.transform.GetChild(5).GetComponent<InteractTrigger>();
+            killTrigger = this.transform.GetChild(5).gameObject;
 
             crackCTI = this.transform.GetChild(2).gameObject.AddComponent<CustomTouchInteractTrigger>();
             crackCTI.teslaGate = this;
@@ -68,7 +68,7 @@ namespace PiggyVarietyMod.Patches
             idleCTI = this.transform.GetChild(3).gameObject.AddComponent<CustomTouchInteractTrigger>();
             idleCTI.teslaGate = this;
             idleCTI.isIdleTrigger = true;
-            killTrigger.gameObject.SetActive(false);
+            killTrigger.SetActive(false);
         }
 
         void Update()
@@ -121,13 +121,13 @@ namespace PiggyVarietyMod.Patches
         private IEnumerator EngageTeslaCoroutine()
         {
             coroutineRunning = true;
-            killTrigger.gameObject.SetActive(false);
+            killTrigger.SetActive(false);
             windUpSource.PlayOneShot(Plugin.teslaBeep);
             windUpSource.PlayOneShot(Plugin.teslaWindUp);
             windUpSource.PlayOneShot(Plugin.teslaUnderbass);
             windUpSource.PlayOneShot(Plugin.teslaClimax);
             yield return new WaitForSeconds(0.75f);
-            killTrigger.gameObject.SetActive(true);
+            killTrigger.SetActive(true);
 
             foreach (PlayerControllerB player in engagingPlayerList)
             {
@@ -140,7 +140,7 @@ namespace PiggyVarietyMod.Patches
             windUpSource.Stop();
             crackSource.PlayOneShot(Plugin.teslaCrack);
             yield return new WaitForSeconds(0.65f);
-            killTrigger.gameObject.SetActive(false);
+            killTrigger.SetActive(false);
             yield return new WaitForSeconds(0.6f);
             coroutineRunning = false;
             yield break;
@@ -165,7 +165,7 @@ namespace PiggyVarietyMod.Patches
 
         private IEnumerator InstantTeslaCoroutine()
         {
-            killTrigger.gameObject.SetActive(true);
+            killTrigger.SetActive(true);
             foreach (PlayerControllerB player in engagingPlayerList)
             {
                 if (player == StartOfRound.Instance.localPlayerController)
@@ -175,7 +175,7 @@ namespace PiggyVarietyMod.Patches
             }
             crackSource.PlayOneShot(Plugin.teslaCrack);
             yield return new WaitForSeconds(0.65f);
-            killTrigger.gameObject.SetActive(false);
+            killTrigger.SetActive(false);
             yield break;
         }
     }

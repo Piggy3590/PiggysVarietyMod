@@ -14,6 +14,10 @@ using System.Collections.Generic;
 using Texture_Replacer;
 using UnityEngine.Video;
 using LethalLib.Modules;
+using System.Linq;
+using static UnityEngine.Mesh;
+using BepInEx.Bootstrap;
+using MoreEmotes.Patch;
 
 namespace PiggyVarietyMod
 {
@@ -22,7 +26,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.13";
+        private const string modVersion = "1.1.15";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -56,6 +60,7 @@ namespace PiggyVarietyMod
         public static int teslaSpawnWeight;
 
         public static bool translateKorean;
+
         
         /*
         public static GameObject revolverPrefab;
@@ -72,6 +77,8 @@ namespace PiggyVarietyMod
 
         public static RuntimeAnimatorController playerAnimator;
         public static RuntimeAnimatorController otherPlayerAnimator;
+
+        public static bool foundMoreEmotes;
 
         public static string PluginDirectory;
 
@@ -107,6 +114,16 @@ namespace PiggyVarietyMod
 
             LethalLib.Modules.Items.RegisterItem(revolverItem);
             LethalLib.Modules.Items.RegisterItem(revolverAmmoItem);
+
+            foreach (KeyValuePair<string, PluginInfo> pluginInfo in Chainloader.PluginInfos)
+            {
+                BepInPlugin metadata = pluginInfo.Value.Metadata;
+                if (metadata.GUID.Equals("MoreEmotes", StringComparison.OrdinalIgnoreCase))
+                {
+                    foundMoreEmotes = true;
+                    mls.LogInfo("[Piggys Variety Mod] Detected More Emotes!");
+                }
+            }
 
             CreateShopItem();
             if (translateKorean)
@@ -169,7 +186,7 @@ namespace PiggyVarietyMod
                 revolverBlast2 = Bundle.LoadAsset<AudioClip>("RevolverBlast2.wav");
 
                 playerAnimator = Bundle.LoadAsset<RuntimeAnimatorController>("PlayerAnimator.controller");
-                otherPlayerAnimator = Bundle.LoadAsset<RuntimeAnimatorController>("PlayerOtherPlayers.controller");
+                otherPlayerAnimator = Bundle.LoadAsset<RuntimeAnimatorController>("OtherPlayerAnimator.controller");
 
                 RevolverItem revolverScript = revolverItem.spawnPrefab.AddComponent<RevolverItem>();
 
@@ -230,7 +247,7 @@ namespace PiggyVarietyMod
         {
             revolverAmmoItem.itemName = "Bullet";
 
-            TerminalNode revolverItemShopNode = new TerminalNode();
+            TerminalNode revolverItemShopNode = ScriptableObject.CreateInstance<TerminalNode>();
             revolverItemShopNode.displayText = "You have requested to order revolvers. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n";
             revolverItemShopNode.clearPreviousText = true;
             revolverItemShopNode.isConfirmationNode = true;
@@ -241,7 +258,7 @@ namespace PiggyVarietyMod
             revolverItemShopNode.creatureFileID = -1;
             revolverItemShopNode.storyLogFileID = -1;
 
-            TerminalNode revolverItemShopNode2 = new TerminalNode();
+            TerminalNode revolverItemShopNode2 = ScriptableObject.CreateInstance<TerminalNode>();
             revolverItemShopNode2.displayText = "Ordered [variableAmount] revolvers. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n";
             revolverItemShopNode2.clearPreviousText = true;
             revolverItemShopNode2.maxCharactersToType = 15;
@@ -251,7 +268,7 @@ namespace PiggyVarietyMod
             revolverItemShopNode2.creatureFileID = -1;
             revolverItemShopNode2.storyLogFileID = -1;
 
-            TerminalNode revolverItemShopInfo = new TerminalNode();
+            TerminalNode revolverItemShopInfo = ScriptableObject.CreateInstance<TerminalNode>();
             revolverItemShopInfo.displayText = "\nFor more powerful self-defense!\nOpen the cylinder and insert revolver ammo to load it.\n\n";
             revolverItemShopInfo.clearPreviousText = true;
             revolverItemShopInfo.maxCharactersToType = 15;
@@ -261,7 +278,7 @@ namespace PiggyVarietyMod
             revolverItemShopInfo.creatureFileID = -1;
             revolverItemShopInfo.storyLogFileID = -1;
 
-            TerminalNode revolverAmmoShopNode = new TerminalNode();
+            TerminalNode revolverAmmoShopNode = ScriptableObject.CreateInstance<TerminalNode>();
             revolverAmmoShopNode.displayText = "You have requested to order revolver ammos. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n";
             revolverAmmoShopNode.clearPreviousText = true;
             revolverAmmoShopNode.isConfirmationNode = true;
@@ -272,7 +289,7 @@ namespace PiggyVarietyMod
             revolverAmmoShopNode.creatureFileID = -1;
             revolverAmmoShopNode.storyLogFileID = -1;
 
-            TerminalNode revolverAmmoShopNode2 = new TerminalNode();
+            TerminalNode revolverAmmoShopNode2 = ScriptableObject.CreateInstance<TerminalNode>();
             revolverAmmoShopNode2.displayText = "Ordered [variableAmount] revolver ammos. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n";
             revolverAmmoShopNode2.clearPreviousText = true;
             revolverAmmoShopNode2.maxCharactersToType = 15;
@@ -282,7 +299,7 @@ namespace PiggyVarietyMod
             revolverAmmoShopNode2.creatureFileID = -1;
             revolverAmmoShopNode2.storyLogFileID = -1;
 
-            TerminalNode revolverAmmoShopInfo = new TerminalNode();
+            TerminalNode revolverAmmoShopInfo = ScriptableObject.CreateInstance<TerminalNode>();
             revolverAmmoShopInfo.displayText = "\nLoad your revolver and fire at LETHAL moments!\n\n";
             revolverAmmoShopInfo.clearPreviousText = true;
             revolverAmmoShopInfo.maxCharactersToType = 15;
