@@ -22,7 +22,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.12";
+        private const string modVersion = "1.1.13";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -54,6 +54,8 @@ namespace PiggyVarietyMod
         public static int revolverAmmoPrice;
 
         public static int teslaSpawnWeight;
+
+        public static bool translateKorean;
         
         /*
         public static GameObject revolverPrefab;
@@ -94,6 +96,8 @@ namespace PiggyVarietyMod
             revolverPrice = (int)base.Config.Bind<int>("Store", "RevolverPrice", 0, "(Recommended 0 or 550) Set the price of the revolver. If 0, removes the item from the store list.").Value;
             revolverAmmoPrice = (int)base.Config.Bind<int>("Store", "RevolverAmmoPrice", 0, "(Recommended 0 or 30) Set the price of the revolver ammo. If 0, removes the item from the store list.").Value;
 
+            translateKorean = (bool)base.Config.Bind<bool>("Translation", "Enable Korean", false, "Set language to Korean.").Value;
+
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(teslaGatePrefab);
 
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(revolverItem.spawnPrefab);
@@ -105,6 +109,10 @@ namespace PiggyVarietyMod
             LethalLib.Modules.Items.RegisterItem(revolverAmmoItem);
 
             CreateShopItem();
+            if (translateKorean)
+            { 
+                Translate();
+            }
             LethalLib.Modules.Items.RegisterScrap(revolverItem, revolverRarity, Levels.LevelTypes.All);
             LethalLib.Modules.Items.RegisterScrap(revolverAmmoItem, revolverAmmoRarity, Levels.LevelTypes.All);
 
@@ -209,6 +217,13 @@ namespace PiggyVarietyMod
             {
                 base.Logger.LogError("Couldn't load assets: " + ex2.Message);
             }
+        }
+
+        void Translate()
+        {
+            revolverItem.toolTips[0] = "격발 : [RMB]";
+            revolverItem.toolTips[1] = "탄약 삽탄하기 : [E]";
+            revolverItem.toolTips[2] = "실린더 열기 : [Q]";
         }
 
         void CreateShopItem()

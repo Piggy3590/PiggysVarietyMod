@@ -513,18 +513,39 @@ namespace PiggyVarietyMod.Patches
             }
             if (playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver"))
             {
-                toolTips[2] = "Close cylinder: [Q]";
+                if (Plugin.translateKorean)
+                {
+                    toolTips[2] = "실린더 닫기: [Q]";
+                }else
+                {
+                    toolTips[2] = "Close cylinder: [Q]";
+                }
             }
             else
             {
-                toolTips[2] = "Open cylinder: [Q]";
+                if (Plugin.translateKorean)
+                {
+                    toolTips[2] = "실린더 열기: [Q]";
+                }
+                else
+                {
+                    toolTips[2] = "Open cylinder: [Q]";
+                }
             }
             HUDManager.Instance.ChangeControlTipMultiple(toolTips, holdingItem: true, itemProperties);
         }
 
         private void SetSafetyControlTip()
         {
-            string changeTo = ((!playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver")) ? "Open cylinder: [Q]" : "Close cylinder: [Q]");
+            string changeTo;
+            if (Plugin.translateKorean)
+            {
+                changeTo = ((!playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver")) ? "실린더 열기: [Q]" : "실린더 닫기: [Q]");
+            }else
+            {
+                changeTo = ((!playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver")) ? "Open cylinder: [Q]" : "Close cylinder: [Q]");
+            }
+
             if (base.IsOwner)
             {
                 HUDManager.Instance.ChangeControlTip(3, changeTo);
