@@ -1,5 +1,5 @@
 ## Description
-
+## 한국인분들은 이슈 한글로 제보하셔도 됨
 ### Not compatible with [More_Emotes](https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/)!
 
 This is a mod that makes what I want to make.
