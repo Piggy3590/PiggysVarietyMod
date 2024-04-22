@@ -43,7 +43,7 @@ namespace PiggyVarietyMod.Patches
                 {
                     GameObjectWeight newWeight = new GameObjectWeight();
                     a.ConnectorPrefabWeights.Add(newWeight);
-                    newWeight.Weight = 0.07f * Plugin.teslaSpawnWeight;
+                    newWeight.Weight = 0.05f * Plugin.teslaSpawnWeight;
                     newWeight.GameObject = Plugin.teslaGateSpawn;
                     Plugin.mls.LogInfo("added tesla to " + a.gameObject.name);
                 }

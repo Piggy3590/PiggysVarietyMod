@@ -373,7 +373,10 @@ namespace PiggyVarietyMod.Patches
                                 Vector3 hitDirection = playerHeldBy.gameplayCamera.transform.forward;
                                 float distance = Vector3.Distance(playerHeldBy.gameplayCamera.transform.position, this.enemyColliders[i].point);
                                 int damage;
-                                if (distance < 12f)
+                                if (distance < 3f)
+                                {
+                                    damage = 4;
+                                }else if (distance < 12f)
                                 {
                                     damage = 3;
                                 }
@@ -636,12 +639,15 @@ namespace PiggyVarietyMod.Patches
             gunAudio.PlayOneShot(gunReloadSFX);
 
             yield return new WaitForSeconds(0.75f);
-            if (playerHeldBy == StartOfRound.Instance.localPlayerController)
+            if (playerHeldBy != null)
             {
-                playerHeldBy.DestroyItemInSlotAndSync(ammoSlotToUse);
+                if (playerHeldBy == StartOfRound.Instance.localPlayerController)
+                {
+                    playerHeldBy.DestroyItemInSlotAndSync(ammoSlotToUse);
+                }
+                ammoSlotToUse = -1;
+                ammosLoaded = Mathf.Clamp(ammosLoaded + 1, 0, 6);
             }
-            ammoSlotToUse = -1;
-            ammosLoaded = Mathf.Clamp(ammosLoaded + 1, 0, 6);
             yield return new WaitForSeconds(0.1f);
 
             if (playerHeldBy == StartOfRound.Instance.localPlayerController)
@@ -669,6 +675,18 @@ namespace PiggyVarietyMod.Patches
         private IEnumerator RevolverMoveCylinder()
         {
             isCylinderMoving = true;
+            foreach (MeshRenderer ammo in revolverAmmos)
+            {
+                ammo.enabled = false;
+            }
+            if (ammosLoaded > 0)
+            {
+                for (int i = 0; i <= ammosLoaded - 1; i++)
+                {
+                    revolverAmmos[i].enabled = true;
+                }
+            }
+
             playerHeldBy.playerBodyAnimator.SetBool("ReloadRevolver", !playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver"));
             gunAnimator.SetBool("Reloading", !gunAnimator.GetBool("Reloading"));
 

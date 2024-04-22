@@ -26,7 +26,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.15";
+        private const string modVersion = "1.1.16";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -57,7 +57,7 @@ namespace PiggyVarietyMod
         public static int revolverPrice;
         public static int revolverAmmoPrice;
 
-        public static int teslaSpawnWeight;
+        public static float teslaSpawnWeight;
 
         public static bool translateKorean;
 
@@ -95,7 +95,7 @@ namespace PiggyVarietyMod
             mls = BepInEx.Logging.Logger.CreateLogSource(modGUID);
             mls.LogInfo("Piggy's Variety Mod is loaded");
 
-            teslaSpawnWeight = (int)base.Config.Bind<int>("Spawn", "TeslaGateWeight", 1, "(Default 1) Sets the spawn weight for the Tesla Gate.").Value;
+            teslaSpawnWeight = (float)base.Config.Bind<float>("Spawn", "TeslaGateWeight", 0, "[EXPERIMENTAL] (Default 0) Sets the spawn weight for the Tesla Gate.").Value;
 
             revolverRarity = (int)base.Config.Bind<int>("Scrap", "RevolverRarity", 20, "(Default 20) Sets the spawn rarity for the revolver.").Value;
             revolverAmmoRarity = (int)base.Config.Bind<int>("Scrap", "RevolverAmmoRarity", 60, "(Default 60) Sets the spawn rarity for the revolver ammo.").Value;
@@ -125,11 +125,11 @@ namespace PiggyVarietyMod
                 }
             }
 
-            CreateShopItem();
             if (translateKorean)
             { 
                 Translate();
             }
+            CreateShopItem();
             LethalLib.Modules.Items.RegisterScrap(revolverItem, revolverRarity, Levels.LevelTypes.All);
             LethalLib.Modules.Items.RegisterScrap(revolverAmmoItem, revolverAmmoRarity, Levels.LevelTypes.All);
 
@@ -241,14 +241,33 @@ namespace PiggyVarietyMod
             revolverItem.toolTips[0] = "격발 : [RMB]";
             revolverItem.toolTips[1] = "탄약 삽탄하기 : [E]";
             revolverItem.toolTips[2] = "실린더 열기 : [Q]";
+
+            revolverItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "리볼버";
+
+            revolverAmmoItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "총알";
         }
 
         void CreateShopItem()
         {
-            revolverAmmoItem.itemName = "Bullet";
+            if (translateKorean)
+            {
+                revolverAmmoItem.itemName = "총알";
+                revolverItem.itemName = "리볼버";
+            }
+            else
+            {
+                revolverAmmoItem.itemName = "Bullet";
+                revolverItem.itemName = "Revolver";
+            }
 
             TerminalNode revolverItemShopNode = ScriptableObject.CreateInstance<TerminalNode>();
-            revolverItemShopNode.displayText = "You have requested to order revolvers. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n";
+            if (translateKorean)
+            {
+                revolverItemShopNode.displayText = "리볼버를 주문하려고 합니다. 수량: [variableAmount]. \r\n아이템의 총 가격: [totalCost].\n\nCONFIRM 또는 DENY를 입력하세요.\n\n";
+            }else
+            {
+                revolverItemShopNode.displayText = "You have requested to order revolvers. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n";
+            }
             revolverItemShopNode.clearPreviousText = true;
             revolverItemShopNode.isConfirmationNode = true;
             revolverItemShopNode.maxCharactersToType = 15;
@@ -259,7 +278,13 @@ namespace PiggyVarietyMod
             revolverItemShopNode.storyLogFileID = -1;
 
             TerminalNode revolverItemShopNode2 = ScriptableObject.CreateInstance<TerminalNode>();
-            revolverItemShopNode2.displayText = "Ordered [variableAmount] revolvers. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n";
+            if (translateKorean)
+            {
+                revolverItemShopNode2.displayText = "[variableAmount]개의 리볼버를 주문했습니다. 당신의 현재 소지금은 [playerCredits]입니다.\n\n우리의 계약자는 작업 중에도 빠른 무료 배송 혜택을 누릴 수 있습니다! 구매한 모든 상품은 1시간마다 대략적인 위치에 도착합니다..\n\n";
+            }else
+            {
+                revolverItemShopNode2.displayText = "Ordered [variableAmount] revolvers. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n";
+            }
             revolverItemShopNode2.clearPreviousText = true;
             revolverItemShopNode2.maxCharactersToType = 15;
             revolverItemShopNode2.buyRerouteToMoon = -1;
@@ -269,7 +294,13 @@ namespace PiggyVarietyMod
             revolverItemShopNode2.storyLogFileID = -1;
 
             TerminalNode revolverItemShopInfo = ScriptableObject.CreateInstance<TerminalNode>();
-            revolverItemShopInfo.displayText = "\nFor more powerful self-defense!\nOpen the cylinder and insert revolver ammo to load it.\n\n";
+            if (translateKorean)
+            {
+                revolverItemShopInfo.displayText = "\n더욱 강력한 자기 보호를 위해!\n실린더를 열고 리볼버 탄약을 삽탄하여 장전하세요.\n\n";
+            }else
+            {
+                revolverItemShopInfo.displayText = "\nFor more powerful self-defense!\nOpen the cylinder and insert revolver ammo to load it.\n\n";
+            }
             revolverItemShopInfo.clearPreviousText = true;
             revolverItemShopInfo.maxCharactersToType = 15;
             revolverItemShopInfo.buyRerouteToMoon = -1;
@@ -279,7 +310,14 @@ namespace PiggyVarietyMod
             revolverItemShopInfo.storyLogFileID = -1;
 
             TerminalNode revolverAmmoShopNode = ScriptableObject.CreateInstance<TerminalNode>();
-            revolverAmmoShopNode.displayText = "You have requested to order revolver ammos. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n";
+            if (translateKorean)
+            {
+                revolverAmmoShopNode.displayText = "리볼버 탄약을 주문하려고 합니다. 수량: [variableAmount]. \r\n아이템의 총 가격: [totalCost].\n\nCONFIRM 또는 DENY를 입력하세요.\n\n";
+            }
+            else
+            {
+                revolverAmmoShopNode.displayText = "You have requested to order revolver ammos. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n";
+            }
             revolverAmmoShopNode.clearPreviousText = true;
             revolverAmmoShopNode.isConfirmationNode = true;
             revolverAmmoShopNode.maxCharactersToType = 15;
@@ -290,7 +328,13 @@ namespace PiggyVarietyMod
             revolverAmmoShopNode.storyLogFileID = -1;
 
             TerminalNode revolverAmmoShopNode2 = ScriptableObject.CreateInstance<TerminalNode>();
-            revolverAmmoShopNode2.displayText = "Ordered [variableAmount] revolver ammos. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n";
+            if (translateKorean)
+            {
+                revolverAmmoShopNode2.displayText = "[variableAmount]개의 리볼버 탄약을 주문했습니다. 당신의 현재 소지금은 [playerCredits]입니다.\n\n우리의 계약자는 작업 중에도 빠른 무료 배송 혜택을 누릴 수 있습니다! 구매한 모든 상품은 1시간마다 대략적인 위치에 도착합니다..\n\n";
+            }else
+            {
+                revolverAmmoShopNode2.displayText = "Ordered [variableAmount] revolver ammos. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n";
+            }
             revolverAmmoShopNode2.clearPreviousText = true;
             revolverAmmoShopNode2.maxCharactersToType = 15;
             revolverAmmoShopNode2.buyRerouteToMoon = -1;
@@ -300,7 +344,14 @@ namespace PiggyVarietyMod
             revolverAmmoShopNode2.storyLogFileID = -1;
 
             TerminalNode revolverAmmoShopInfo = ScriptableObject.CreateInstance<TerminalNode>();
-            revolverAmmoShopInfo.displayText = "\nLoad your revolver and fire at LETHAL moments!\n\n";
+            if (translateKorean)
+            {
+                revolverAmmoShopInfo.displayText = "\n리볼버에 장전하고 <b>치명적인</b> 순간에 격발하세요!\n\n";
+            }
+            else
+            {
+                revolverAmmoShopInfo.displayText = "\nLoad to your revolver and fire at LETHAL moments!\n\n";
+            }
             revolverAmmoShopInfo.clearPreviousText = true;
             revolverAmmoShopInfo.maxCharactersToType = 15;
             revolverAmmoShopInfo.buyRerouteToMoon = -1;
