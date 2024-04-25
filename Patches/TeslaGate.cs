@@ -61,6 +61,8 @@ namespace PiggyVarietyMod.Patches
             crackSource = this.transform.GetChild(4).GetChild(2).GetComponent<AudioSource>();
 
             killTrigger = this.transform.GetChild(5).gameObject;
+            CustomTouchInteractTrigger killTriggerScript = killTrigger.AddComponent<CustomTouchInteractTrigger>();
+            killTriggerScript.isKillTrigger = true;
 
             crackCTI = this.transform.GetChild(2).gameObject.AddComponent<CustomTouchInteractTrigger>();
             crackCTI.teslaGate = this;

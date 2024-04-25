@@ -1,6 +1,8 @@
 ## Description
-## 한국인분들은 이슈 한글로 제보하셔도 됨
-### Not compatible with [More_Emotes](https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/)!
+
+### Sign animations in [More_Emotes](https://thunderstore.io/c/lethal-company/p/Sligili/More_Emotes/) may not work properly!
+
+### (For korean players) 한글패치를 사용중인 분들을 위해 아이템 등을 한글로 변경하는 구성이 있습니다! 참고해주세요
 
 This is a mod that makes what I want to make.
 
@@ -20,6 +22,10 @@ Also includes separate/add-on content from [LC_Office](https://thunderstore.io/c
 ![PreviewGif1](https://i.imgur.com/9ohaonq.gif)
 
 - The method of obtaining this item will change in the future.
+
+### EXPERIMENTAL FEATURE (Not enabled by default)
+
+### Nothing lmao
 
 ## Credits
 

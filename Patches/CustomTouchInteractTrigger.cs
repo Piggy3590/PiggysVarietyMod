@@ -42,14 +42,7 @@ namespace PiggyVarietyMod.Patches
                     teslaGate.activatePlayerList.Add(playerScript);
                     teslaGate.activateList.Add(collider.gameObject);
                 }
-                if (isKillTrigger)
-                {
-                    if (playerScript == StartOfRound.Instance.localPlayerController && !playerScript.isPlayerDead)
-                    {
-                        playerScript.KillPlayer(Vector3.zero, true, CauseOfDeath.Electrocution);
-                    }
-                }
-                else
+                else if (!isIdleTrigger && !isKillTrigger)
                 {
                     teslaGate.engagingPlayerList.Add(playerScript);
                     teslaGate.engagingList.Add(collider.gameObject);
@@ -89,17 +82,16 @@ namespace PiggyVarietyMod.Patches
         {
             if (isKillTrigger)
             {
-                if (collider.gameObject.GetComponent<EnemyAICollisionDetect>())
+                PlayerControllerB component = collider.gameObject.GetComponent<PlayerControllerB>();
+                if (component != null && component == GameNetworkManager.Instance.localPlayerController && !component.isPlayerDead)
                 {
-                    EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
-                    IHittable hittable;
-                    if (enemyDetection.transform.TryGetComponent<IHittable>(out hittable))
-                    {
-                        if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
-                        {
-                            hittable.Hit(5, Vector3.zero, null, true, -1);
-                        }
-                    }
+                    GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.down * 17f, true, CauseOfDeath.Electrocution, 0);
+                    return;
+                }
+                EnemyAICollisionDetect component3 = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
+                if (component3 != null && component3.mainScript != null && component3.mainScript.IsOwner && component3.mainScript.enemyType.canDie && !component3.mainScript.isEnemyDead)
+                {
+                    component3.mainScript.KillEnemyOnOwnerClient(false);
                 }
             }
         }

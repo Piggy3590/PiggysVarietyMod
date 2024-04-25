@@ -26,7 +26,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.16";
+        private const string modVersion = "1.1.17";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -95,13 +95,13 @@ namespace PiggyVarietyMod
             mls = BepInEx.Logging.Logger.CreateLogSource(modGUID);
             mls.LogInfo("Piggy's Variety Mod is loaded");
 
-            teslaSpawnWeight = (float)base.Config.Bind<float>("Spawn", "TeslaGateWeight", 0, "[EXPERIMENTAL] (Default 0) Sets the spawn weight for the Tesla Gate.").Value;
+            teslaSpawnWeight = (float)base.Config.Bind<float>("Spawn", "TeslaGateWeight", 1, "(Default 1) Sets the spawn weight for the Tesla Gate.").Value;
 
             revolverRarity = (int)base.Config.Bind<int>("Scrap", "RevolverRarity", 20, "(Default 20) Sets the spawn rarity for the revolver.").Value;
             revolverAmmoRarity = (int)base.Config.Bind<int>("Scrap", "RevolverAmmoRarity", 60, "(Default 60) Sets the spawn rarity for the revolver ammo.").Value;
 
-            revolverPrice = (int)base.Config.Bind<int>("Store", "RevolverPrice", 0, "(Recommended 0 or 550) Set the price of the revolver. If 0, removes the item from the store list.").Value;
-            revolverAmmoPrice = (int)base.Config.Bind<int>("Store", "RevolverAmmoPrice", 0, "(Recommended 0 or 30) Set the price of the revolver ammo. If 0, removes the item from the store list.").Value;
+            revolverPrice = (int)base.Config.Bind<int>("Store", "RevolverPrice", -1, "(Recommended -1 or 550) Set the price of the revolver. If -1, removes the item from the store list.").Value;
+            revolverAmmoPrice = (int)base.Config.Bind<int>("Store", "RevolverAmmoPrice", -1, "(Recommended -1 or 30) Set the price of the revolver ammo. If -1, removes the item from the store list.").Value;
 
             translateKorean = (bool)base.Config.Bind<bool>("Translation", "Enable Korean", false, "Set language to Korean.").Value;
 
@@ -360,11 +360,11 @@ namespace PiggyVarietyMod
             revolverAmmoShopInfo.creatureFileID = -1;
             revolverAmmoShopInfo.storyLogFileID = -1;
 
-            if (revolverPrice > 0)
+            if (revolverPrice > -1)
             {
                 LethalLib.Modules.Items.RegisterShopItem(revolverItem, revolverItemShopNode, revolverItemShopNode2, revolverItemShopInfo, revolverPrice);
             }
-            if (revolverAmmoPrice > 0)
+            if (revolverAmmoPrice > -1)
             {
                 LethalLib.Modules.Items.RegisterShopItem(revolverAmmoItem, revolverAmmoShopNode, revolverAmmoShopNode2, revolverAmmoShopInfo, revolverAmmoPrice);
             }
