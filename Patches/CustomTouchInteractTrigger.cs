@@ -37,15 +37,18 @@ namespace PiggyVarietyMod.Patches
             if (collider.transform.parent.GetComponent<PlayerControllerB>() != null)
             {
                 PlayerControllerB playerScript = collider.transform.parent.GetComponent<PlayerControllerB>();
-                if (isIdleTrigger)
+                if (!playerScript.isPlayerDead)
                 {
-                    teslaGate.activatePlayerList.Add(playerScript);
-                    teslaGate.activateList.Add(collider.gameObject);
-                }
-                else if (!isIdleTrigger && !isKillTrigger)
-                {
-                    teslaGate.engagingPlayerList.Add(playerScript);
-                    teslaGate.engagingList.Add(collider.gameObject);
+                    if (isIdleTrigger)
+                    {
+                        teslaGate.activatePlayerList.Add(playerScript);
+                        teslaGate.activateList.Add(collider.gameObject);
+                    }
+                    else if (!isIdleTrigger && !isKillTrigger)
+                    {
+                        teslaGate.engagingPlayerList.Add(playerScript);
+                        teslaGate.engagingList.Add(collider.gameObject);
+                    }
                 }
             }
 

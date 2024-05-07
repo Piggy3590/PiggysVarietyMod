@@ -124,6 +124,7 @@ namespace PiggyVarietyMod.Patches
         public override void EquipItem()
         {
             base.EquipItem();
+            SyncRevolverAmmoServerRpc(ammosLoaded);
             playerHeldBy.playerBodyAnimator.SetBool("ReloadRevolver", false);
             gunAnimator.SetBool("Reloading", false);
             revolverAmmoInHand.enabled = false;
@@ -159,8 +160,9 @@ namespace PiggyVarietyMod.Patches
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
+            SyncRevolverAmmoServerRpc(ammosLoaded);
             base.ItemActivate(used, buttonDown);
-            if (!isReloading && !cantFire && !playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver"))
+            if (!isReloading && !cantFire && !gunAnimator.GetBool("Reloading"))
             {
                 if (ammosLoaded > 0)
                 {
@@ -509,11 +511,11 @@ namespace PiggyVarietyMod.Patches
             Debug.Log($"r/l activate: {right}");
             if (!right)
             {
-                StartOpenGun();
+                StartOpenGunServerRpc();
             }
             else if (!isCylinderMoving && !isReloading && ammosLoaded < 6 && gunAnimator.GetBool("Reloading"))
             {
-                StartReloadGun();
+                StartReloadGunServerRpc();
             }
         }
 
@@ -566,7 +568,14 @@ namespace PiggyVarietyMod.Patches
             }
         }
 
-        private void StartReloadGun()
+        [ServerRpc(RequireOwnership = false)]
+        public void StartReloadGunServerRpc()
+        {
+            StartReloadGunClientRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void StartReloadGunClientRpc()
         {
             if (ReloadedGun() && !isReloading)
             {
@@ -578,7 +587,14 @@ namespace PiggyVarietyMod.Patches
             }
         }
 
-        private void StartOpenGun()
+        [ServerRpc(RequireOwnership = false)]
+        public void StartOpenGunServerRpc()
+        {
+            StartOpenGunClientRpc();
+        }
+
+        [ClientRpc]
+        public void StartOpenGunClientRpc()
         {
             if (!isCylinderMoving && !isReloading)
             {
@@ -592,7 +608,7 @@ namespace PiggyVarietyMod.Patches
 
         private IEnumerator ReloadGunAnimation()
         {
-            if (isCylinderMoving && !playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver"))
+            if (isCylinderMoving && !gunAnimator.GetBool("Reloading"))
             {
                 yield break;
             }
@@ -766,8 +782,23 @@ namespace PiggyVarietyMod.Patches
             StopUsingGun();
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        public void SyncRevolverAmmoServerRpc(int ammoCount)
+        {
+            if (base.IsOwner)
+            {
+                SyncRevolverAmmoClientRpc(ammoCount);
+            }
+        }
+        [ClientRpc]
+        public void SyncRevolverAmmoClientRpc(int ammoCount)
+        {
+            ammosLoaded = ammoCount;
+        }
+
         private void StopUsingGun()
         {
+            SyncRevolverAmmoServerRpc(ammosLoaded);
             isCylinderMoving = false;
             previousPlayerHeldBy.equippedUsableItemQE = false;
             if (isReloading)
