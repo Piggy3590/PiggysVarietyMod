@@ -51,7 +51,7 @@ namespace PiggyVarietyMod.Patches
                     }
                 }
             }
-
+            
             if (collider.transform.parent.GetComponent<EnemyAICollisionDetect>() != null)
             {
                 if (collider.gameObject.GetComponent<EnemyAICollisionDetect>())
@@ -63,7 +63,9 @@ namespace PiggyVarietyMod.Patches
                         Plugin.mls.LogInfo("Tesla gate detected enemy: " + enemyDetection.mainScript.enemyType.enemyName + ", Idle: " + isIdleTrigger + ", Kill: " + isKillTrigger);
                         if (isIdleTrigger)
                         {
+                            /*
                             teslaGate.activateList.Add(collider.gameObject);
+                            */
                         }
                         if (isKillTrigger)
                         {
@@ -74,7 +76,9 @@ namespace PiggyVarietyMod.Patches
                         }
                         else
                         {
+                            /*
                             teslaGate.engagingList.Add(collider.gameObject);
+                            */
                         }
                     }
                 }
@@ -113,6 +117,7 @@ namespace PiggyVarietyMod.Patches
                 }
             }
 
+            /*
             if (collider.transform.parent.GetComponent<EnemyAICollisionDetect>() != null)
             {
                 EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
@@ -122,6 +127,7 @@ namespace PiggyVarietyMod.Patches
                     teslaGate.activateList.Remove(collider.gameObject);
                 }
             }
+            */
         }
     }
 }

@@ -26,7 +26,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.20";
+        private const string modVersion = "1.1.22";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -58,6 +58,7 @@ namespace PiggyVarietyMod
         public static int revolverAmmoPrice;
 
         public static float teslaSpawnWeight;
+        public static float teslaSoundVolume;
 
         public static bool translateKorean;
 
@@ -95,6 +96,7 @@ namespace PiggyVarietyMod
             mls = BepInEx.Logging.Logger.CreateLogSource(modGUID);
             mls.LogInfo("Piggy's Variety Mod is loaded");
 
+            teslaSoundVolume = (float)base.Config.Bind<float>("Generic", "TeslaGateVolume", 1, "(Default 1) Sets the sound volume for the Tesla Gate.").Value;
             teslaSpawnWeight = (float)base.Config.Bind<float>("Spawn", "TeslaGateWeight", 1, "(Default 1) Sets the spawn weight for the Tesla Gate.").Value;
 
             revolverRarity = (int)base.Config.Bind<int>("Scrap", "RevolverRarity", 20, "(Default 20) Sets the spawn rarity for the revolver.").Value;

@@ -52,6 +52,9 @@ namespace PiggyVarietyMod.Patches
 
         void Start()
         {
+            windUpSource.volume = 0.45f * Plugin.teslaSoundVolume;
+            idleSource.volume = 0.45f * Plugin.teslaSoundVolume;
+            crackSource.volume = 0.45f * Plugin.teslaSoundVolume;
             //this.GetComponent<TerminalAccessibleObject>().terminalCodeEvent.AddListener(ForceTeslaTrigger);
             telegraphParticle = this.transform.GetChild(0).GetComponent<ParticleSystem>();
             idleParticle = this.transform.GetChild(1).GetComponent<ParticleSystem>();
