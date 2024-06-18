@@ -44,9 +44,11 @@ namespace PiggyVarietyMod.Patches
         public static AnimationClip sign;
         public static AnimationClip sign_D;
 
-        [HarmonyPrefix]
+        private static bool pv_isPlayerFirstFrame;
+
+        [HarmonyPostfix]
         [HarmonyPatch("Update")]
-        private static void Update_Prefix(PlayerControllerB __instance, ref Animator ___playerBodyAnimator)
+        private static void Update_Postfix(PlayerControllerB __instance, ref Animator ___playerBodyAnimator)
         {
             if (___playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && ___playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
             {
@@ -57,6 +59,18 @@ namespace PiggyVarietyMod.Patches
                 else
                 {
                     UpdateAnimator(__instance, ___playerBodyAnimator);
+                }
+            }
+            if (__instance == StartOfRound.Instance.localPlayerController)
+            {
+                if (pv_isPlayerFirstFrame)
+                {
+                    OnFirstLocalPlayerFrameWithNewAnimator(__instance);
+                }
+                if (pv_isPlayerFirstFrame)
+                {
+                    __instance.SpawnPlayerAnimation();
+                    pv_isPlayerFirstFrame = false;
                 }
             }
         }
@@ -122,6 +136,12 @@ namespace PiggyVarietyMod.Patches
                     }
                 }
             }
+        }
+
+        private static void OnFirstLocalPlayerFrameWithNewAnimator(PlayerControllerB __instance)
+        {
+            pv_isPlayerFirstFrame = false;
+            __instance.SpawnPlayerAnimation();
         }
 
         static void GetMoreEmotes(RuntimeAnimatorController animator)

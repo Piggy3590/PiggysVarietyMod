@@ -26,7 +26,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.22";
+        private const string modVersion = "1.1.27";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -53,12 +53,16 @@ namespace PiggyVarietyMod
 
         public static int revolverRarity;
         public static int revolverAmmoRarity;
+        public static int revolverMaxPlayerDamage;
+        public static int revolverMaxMonsterDamage;
+        public static bool revolverInfinityAmmo;
 
         public static int revolverPrice;
         public static int revolverAmmoPrice;
 
         public static float teslaSpawnWeight;
         public static float teslaSoundVolume;
+        public static bool teslaShake;
 
         public static bool translateKorean;
 
@@ -96,7 +100,11 @@ namespace PiggyVarietyMod
             mls = BepInEx.Logging.Logger.CreateLogSource(modGUID);
             mls.LogInfo("Piggy's Variety Mod is loaded");
 
-            teslaSoundVolume = (float)base.Config.Bind<float>("Generic", "TeslaGateVolume", 1, "(Default 1) Sets the sound volume for the Tesla Gate.").Value;
+            teslaSoundVolume = (float)base.Config.Bind<float>("Generic", "TeslaGateVolume", 1, "(Default 1) Sets the sound volume for Tesla Gate.").Value;
+            teslaShake = (bool)base.Config.Bind<bool>("Generic", "TeslaGateShake", false, "(Default false) Disable camera shake for Tesla Gate.").Value;
+            revolverMaxPlayerDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxPlayerDamage", 70, "(Default 70) Sets the maximum amount of damage the revolver can inflict on the player.").Value;
+            revolverMaxMonsterDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxMonsterDamage", 4, "(Default 4) Sets the maximum amount of damage the revolver can inflict on the monster.").Value;
+            revolverInfinityAmmo = (bool)base.Config.Bind<bool>("Generic", "RevolverInfinityAmmo", false, "(Default false) If true, the revolver will not consume ammo.").Value;
             teslaSpawnWeight = (float)base.Config.Bind<float>("Spawn", "TeslaGateWeight", 1, "(Default 1) Sets the spawn weight for the Tesla Gate.").Value;
 
             revolverRarity = (int)base.Config.Bind<int>("Scrap", "RevolverRarity", 20, "(Default 20) Sets the spawn rarity for the revolver.").Value;
@@ -120,10 +128,11 @@ namespace PiggyVarietyMod
             foreach (KeyValuePair<string, PluginInfo> pluginInfo in Chainloader.PluginInfos)
             {
                 BepInPlugin metadata = pluginInfo.Value.Metadata;
-                if (metadata.GUID.Equals("MoreEmotes", StringComparison.OrdinalIgnoreCase))
+                if (metadata.GUID.Equals("MoreEmotes", StringComparison.OrdinalIgnoreCase) || metadata.GUID.Equals("BetterEmotes", StringComparison.OrdinalIgnoreCase))
                 {
                     foundMoreEmotes = true;
-                    mls.LogInfo("[Piggys Variety Mod] Detected More Emotes!");
+                    mls.LogInfo("[Piggys Variety Mod] Detected More Emotes / Better Emotes!");
+                    mls.LogInfo("[Piggys Variety Mod] More Emotes / Better Emotes may not be compatible!");
                 }
             }
 

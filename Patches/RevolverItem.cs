@@ -92,6 +92,10 @@ namespace PiggyVarietyMod.Patches
         public override void Update()
         {
             base.Update();
+            if (Plugin.revolverInfinityAmmo)
+            {
+                ammosLoaded = 6;
+            }
             if (!isReloading)
             {
                 switch (ammosLoaded)
@@ -377,18 +381,19 @@ namespace PiggyVarietyMod.Patches
                                 int damage;
                                 if (distance < 3f)
                                 {
-                                    damage = 4;
-                                }else if (distance < 12f)
+                                    damage = Plugin.revolverMaxMonsterDamage;
+                                }
+                                else if (distance < 12f)
                                 {
-                                    damage = 3;
+                                    damage = Mathf.RoundToInt(Plugin.revolverMaxMonsterDamage / 2);
                                 }
                                 else if (distance < 26f)
                                 {
-                                    damage = 2;
+                                    damage = Mathf.RoundToInt(Plugin.revolverMaxMonsterDamage / 3);
                                 }
                                 else
                                 {
-                                    damage = 1;
+                                    damage = Mathf.RoundToInt(Plugin.revolverMaxMonsterDamage / 4);
                                 }
 
                                 Plugin.mls.LogInfo("Damage to enemy, damage: " + damage + ", distance:" + distance);
@@ -446,15 +451,15 @@ namespace PiggyVarietyMod.Patches
                     float distance = Vector3.Distance(playerHeldBy.gameplayCamera.transform.position, playerColliders[i].point);
                     if (distance < 10)
                     {
-                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(70, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
+                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(Plugin.revolverMaxPlayerDamage, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
                     }
                     else if (distance < 25)
                     {
-                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(50, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
+                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(Mathf.RoundToInt(Plugin.revolverMaxPlayerDamage - (Plugin.revolverMaxPlayerDamage / 3)), true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
                     }
                     else
                     {
-                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(25, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
+                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(Mathf.RoundToInt(Plugin.revolverMaxPlayerDamage / 3), true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
                     }
                     Debug.Log("Revolver vs Player wtf lmao");
                 }

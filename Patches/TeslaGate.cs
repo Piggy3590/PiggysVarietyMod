@@ -52,9 +52,6 @@ namespace PiggyVarietyMod.Patches
 
         void Start()
         {
-            windUpSource.volume = 0.45f * Plugin.teslaSoundVolume;
-            idleSource.volume = 0.45f * Plugin.teslaSoundVolume;
-            crackSource.volume = 0.45f * Plugin.teslaSoundVolume;
             //this.GetComponent<TerminalAccessibleObject>().terminalCodeEvent.AddListener(ForceTeslaTrigger);
             telegraphParticle = this.transform.GetChild(0).GetComponent<ParticleSystem>();
             idleParticle = this.transform.GetChild(1).GetComponent<ParticleSystem>();
@@ -74,6 +71,10 @@ namespace PiggyVarietyMod.Patches
             idleCTI.teslaGate = this;
             idleCTI.isIdleTrigger = true;
             killTrigger.SetActive(false);
+
+            windUpSource.volume = 0.45f * Plugin.teslaSoundVolume;
+            idleSource.volume = 0.45f * Plugin.teslaSoundVolume;
+            crackSource.volume = 0.45f * Plugin.teslaSoundVolume;
         }
 
         void Update()
@@ -136,7 +137,7 @@ namespace PiggyVarietyMod.Patches
 
             foreach (PlayerControllerB player in engagingPlayerList)
             {
-                if (player == StartOfRound.Instance.localPlayerController)
+                if (player == StartOfRound.Instance.localPlayerController || !Plugin.teslaShake)
                 {
                     HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
                 }
@@ -173,7 +174,7 @@ namespace PiggyVarietyMod.Patches
             killTrigger.SetActive(true);
             foreach (PlayerControllerB player in engagingPlayerList)
             {
-                if (player == StartOfRound.Instance.localPlayerController)
+                if (player == StartOfRound.Instance.localPlayerController && !Plugin.teslaShake)
                 {
                     HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
                 }
