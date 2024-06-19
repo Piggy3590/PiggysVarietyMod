@@ -5,19 +5,10 @@ using System;
 using PiggyVarietyMod.Patches;
 using UnityEngine;
 using System.IO;
-using TMPro;
-using BepInEx.Configuration;
 using System.Reflection;
-using Unity.Mathematics;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
-using Texture_Replacer;
-using UnityEngine.Video;
 using LethalLib.Modules;
-using System.Linq;
-using static UnityEngine.Mesh;
 using BepInEx.Bootstrap;
-using MoreEmotes.Patch;
 
 namespace PiggyVarietyMod
 {
