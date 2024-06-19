@@ -116,7 +116,7 @@ namespace PiggyVarietyMod.Patches
 
             foreach (PlayerControllerB player in engagingPlayerList)
             {
-                if (player == StartOfRound.Instance.localPlayerController || !Plugin.teslaShake)
+                if (player == StartOfRound.Instance.localPlayerController && Plugin.teslaShake)
                 {
                     HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
                 }
@@ -153,7 +153,7 @@ namespace PiggyVarietyMod.Patches
             killTrigger.SetActive(true);
             foreach (PlayerControllerB player in engagingPlayerList)
             {
-                if (player == StartOfRound.Instance.localPlayerController && !Plugin.teslaShake)
+                if (player == StartOfRound.Instance.localPlayerController && Plugin.teslaShake)
                 {
                     HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
                 }
