@@ -5,19 +5,10 @@ using System;
 using PiggyVarietyMod.Patches;
 using UnityEngine;
 using System.IO;
-using TMPro;
-using BepInEx.Configuration;
 using System.Reflection;
-using Unity.Mathematics;
-using UnityEngine.SceneManagement;
 using System.Collections.Generic;
-using Texture_Replacer;
-using UnityEngine.Video;
 using LethalLib.Modules;
-using System.Linq;
-using static UnityEngine.Mesh;
 using BepInEx.Bootstrap;
-using MoreEmotes.Patch;
 
 namespace PiggyVarietyMod
 {
@@ -101,7 +92,7 @@ namespace PiggyVarietyMod
             mls.LogInfo("Piggy's Variety Mod is loaded");
 
             teslaSoundVolume = (float)base.Config.Bind<float>("Generic", "TeslaGateVolume", 1, "(Default 1) Sets the sound volume for Tesla Gate.").Value;
-            teslaShake = (bool)base.Config.Bind<bool>("Generic", "TeslaGateShake", false, "(Default false) Disable camera shake for Tesla Gate.").Value;
+            teslaShake = (bool)base.Config.Bind<bool>("Generic", "TeslaGateShake", true, "(Default true) Enable camera shake for Tesla Gate.").Value;
             revolverMaxPlayerDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxPlayerDamage", 70, "(Default 70) Sets the maximum amount of damage the revolver can inflict on the player.").Value;
             revolverMaxMonsterDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxMonsterDamage", 4, "(Default 4) Sets the maximum amount of damage the revolver can inflict on the monster.").Value;
             revolverInfinityAmmo = (bool)base.Config.Bind<bool>("Generic", "RevolverInfinityAmmo", false, "(Default false) If true, the revolver will not consume ammo.").Value;
