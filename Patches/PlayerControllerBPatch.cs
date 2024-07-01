@@ -26,7 +26,7 @@ namespace PiggyVarietyMod.Patches
         [HarmonyPatch("Update")]
         private static void Update_Postfix(PlayerControllerB __instance, ref Animator ___playerBodyAnimator)
         {
-            if (___playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && ___playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
+            /*if (___playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && ___playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
             {
                 if (Plugin.foundMoreEmotes)
                 {
@@ -48,12 +48,12 @@ namespace PiggyVarietyMod.Patches
                     __instance.SpawnPlayerAnimation();
                     pv_isPlayerFirstFrame = false;
                 }
-            }
+            }*/
         }
 
         static void UpdateAnimator(PlayerControllerB __instance, Animator ___playerBodyAnimator)
         {
-            if (___playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && ___playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
+            /*if (___playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && ___playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
             {
                 if (__instance == StartOfRound.Instance.localPlayerController)
                 {
@@ -65,12 +65,12 @@ namespace PiggyVarietyMod.Patches
                     ___playerBodyAnimator.runtimeAnimatorController = Plugin.otherPlayerAnimator;
                     Plugin.mls.LogInfo("Replace Other Player Animator!");
                 }
-            }
+            }*/
         }
 
         static void UpdateMoreEmotesAnimator(PlayerControllerB __instance, Animator ___playerBodyAnimator)
         {
-            if (middleFinger == null || middleFinger_D == null || clap == null | clap_D == null || shy == null | griddy == null || twerk == null
+            /*if (middleFinger == null || middleFinger_D == null || clap == null | clap_D == null || shy == null | griddy == null || twerk == null
                     || salute == null || prisyadka == null || sign == null || sign_D == null)
             {
                 GetMoreEmotes(___playerBodyAnimator.runtimeAnimatorController);
@@ -111,7 +111,7 @@ namespace PiggyVarietyMod.Patches
                         }
                     }
                 }
-            }
+            }*/
         }
 
         private static void OnFirstLocalPlayerFrameWithNewAnimator(PlayerControllerB __instance)

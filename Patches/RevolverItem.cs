@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements.Collections;
 
 namespace PiggyVarietyMod.Patches
 {
-    public class RevolverItem : GrabbableObject
-    {
+    public class RevolverItem : GrabbableObject {
+        public static Dictionary<ulong, RuntimeAnimatorController> playerAnimatorDictionary = new Dictionary<ulong, RuntimeAnimatorController>();
+        
         public int gunCompatibleAmmoID = 1410;
 
         public bool isReloading;
@@ -125,6 +127,10 @@ namespace PiggyVarietyMod.Patches
 
         public override void EquipItem()
         {
+            if (playerHeldBy != null)
+            { 
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, false);
+            }
             base.EquipItem();
             SyncRevolverAmmoServerRpc(ammosLoaded);
             playerHeldBy.playerBodyAnimator.SetBool("ReloadRevolver", false);
@@ -772,15 +778,34 @@ namespace PiggyVarietyMod.Patches
             }
             return -1;
         }
+        
+        
+
+        public override void GrabItem() {
+            if (playerHeldBy != null)
+            { 
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, false);
+            }
+            base.GrabItem();
+        }
 
         public override void PocketItem()
         {
+            if (playerHeldBy != null)
+            { 
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, true);
+            }
+            
             base.PocketItem();
             StopUsingGun();
         }
 
         public override void DiscardItem()
         {
+            if (playerHeldBy != null)
+            { 
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, true);
+            }
             base.DiscardItem();
             StopUsingGun();
         }
@@ -824,6 +849,35 @@ namespace PiggyVarietyMod.Patches
                 revolverAmmoInHandTransform.SetParent(base.transform);
                 revolverAmmoInHand.enabled = false;
                 isReloading = false;
+            }
+        }
+        
+        static void UpdateAnimator(PlayerControllerB player, Animator playerBodyAnimator, bool restore)
+        {
+            if (!restore)
+            {
+                if (playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
+                {
+                    if (player == StartOfRound.Instance.localPlayerController)
+                    {
+                        playerBodyAnimator.runtimeAnimatorController = Plugin.playerAnimator;
+                        Plugin.mls.LogInfo("Replace Player Animator!");
+                    }
+                    else
+                    {
+                        playerBodyAnimator.runtimeAnimatorController = Plugin.otherPlayerAnimator;
+                        Plugin.mls.LogInfo("Replace Other Player Animator!");
+                    }
+                }
+            }
+            else
+            {
+                if (playerAnimatorDictionary.ContainsKey(player.playerClientId))
+                {
+                    playerBodyAnimator.runtimeAnimatorController = playerAnimatorDictionary.Get(player.playerClientId);
+                    playerAnimatorDictionary.Remove(player.playerClientId);
+                    Plugin.mls.LogInfo("Restored Player Animator!");
+                }    
             }
         }
     }
