@@ -66,16 +66,17 @@ namespace PiggyVarietyMod.Patches
         {
             if (isKillTrigger)
             {
-                PlayerControllerB component = collider.gameObject.GetComponent<PlayerControllerB>();
-                if (component != null && component == GameNetworkManager.Instance.localPlayerController && !component.isPlayerDead)
+                PlayerControllerB player = collider.gameObject.GetComponent<PlayerControllerB>();
+                if (player != null && player == GameNetworkManager.Instance.localPlayerController && !player.isPlayerDead)
                 {
                     GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.down * 17f, true, CauseOfDeath.Electrocution, 0);
                     return;
                 }
-                EnemyAICollisionDetect component3 = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
-                if (component3 != null && component3.mainScript != null && component3.mainScript.IsOwner && component3.mainScript.enemyType.canDie && !component3.mainScript.isEnemyDead)
+                EnemyAICollisionDetect enemyCollision = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
+                if (enemyCollision != null && enemyCollision.mainScript != null && enemyCollision.mainScript.IsOwner &&
+                    enemyCollision.mainScript.enemyType.canDie && !enemyCollision.mainScript.isEnemyDead)
                 {
-                    component3.mainScript.KillEnemyOnOwnerClient(false);
+                    enemyCollision.mainScript.KillEnemyOnOwnerClient(false);
                 }
             }
         }

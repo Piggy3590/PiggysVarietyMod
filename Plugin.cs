@@ -17,7 +17,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.1.31";
+        private const string modVersion = "1.2.0";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
