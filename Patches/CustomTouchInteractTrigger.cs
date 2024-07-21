@@ -11,9 +11,10 @@ namespace PiggyVarietyMod.Patches
 
         void OnTriggerEnter(Collider collider)
         {
-            if (collider.transform.parent.GetComponent<PlayerControllerB>() != null)
+            PlayerControllerB playerScript = collider.GetComponent<PlayerControllerB>();
+            if (playerScript != null)
             {
-                PlayerControllerB playerScript = collider.transform.parent.GetComponent<PlayerControllerB>();
+                Plugin.mls.LogInfo("Tesla gate detected player: " + playerScript.playerUsername + ", Idle: " + isIdleTrigger + ", Kill: " + isKillTrigger);
                 if (!playerScript.isPlayerDead)
                 {
                     if (isIdleTrigger)
@@ -28,35 +29,32 @@ namespace PiggyVarietyMod.Patches
                     }
                 }
             }
-            
-            if (collider.transform.parent.GetComponent<EnemyAICollisionDetect>() != null)
+
+            EnemyAICollisionDetect enemyDetection = collider.GetComponent<EnemyAICollisionDetect>();
+            if (enemyDetection != null)
             {
-                if (collider.gameObject.GetComponent<EnemyAICollisionDetect>())
+                IHittable hittable;
+                if (enemyDetection.transform.TryGetComponent<IHittable>(out hittable))
                 {
-                    EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
-                    IHittable hittable;
-                    if (enemyDetection.transform.TryGetComponent<IHittable>(out hittable))
+                    Plugin.mls.LogInfo("Tesla gate detected enemy: " + enemyDetection.mainScript.enemyType.enemyName + ", Idle: " + isIdleTrigger + ", Kill: " + isKillTrigger);
+                    if (isIdleTrigger)
                     {
-                        Plugin.mls.LogInfo("Tesla gate detected enemy: " + enemyDetection.mainScript.enemyType.enemyName + ", Idle: " + isIdleTrigger + ", Kill: " + isKillTrigger);
-                        if (isIdleTrigger)
-                        {
-                            /*
-                            teslaGate.activateList.Add(collider.gameObject);
-                            */
+                        /*
+                        teslaGate.activateList.Add(collider.gameObject);
+                        */
+                    }
+                    if (isKillTrigger)
+                    {
+                        if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
+                        { 
+                            hittable.Hit(5, Vector3.zero, null, true, -1);
                         }
-                        if (isKillTrigger)
-                        {
-                            if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
-                            {
-                                hittable.Hit(5, Vector3.zero, null, true, -1);
-                            }
-                        }
-                        else
-                        {
-                            /*
-                            teslaGate.engagingList.Add(collider.gameObject);
-                            */
-                        }
+                    }
+                    else
+                    {
+                        /*
+                        teslaGate.engagingList.Add(collider.gameObject);
+                        */
                     }
                 }
             }
@@ -66,13 +64,13 @@ namespace PiggyVarietyMod.Patches
         {
             if (isKillTrigger)
             {
-                PlayerControllerB player = collider.gameObject.GetComponent<PlayerControllerB>();
+                PlayerControllerB player = collider.GetComponent<PlayerControllerB>();
                 if (player != null && player == GameNetworkManager.Instance.localPlayerController && !player.isPlayerDead)
                 {
                     GameNetworkManager.Instance.localPlayerController.KillPlayer(Vector3.down * 17f, true, CauseOfDeath.Electrocution, 0);
                     return;
                 }
-                EnemyAICollisionDetect enemyCollision = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
+                EnemyAICollisionDetect enemyCollision = collider.GetComponent<EnemyAICollisionDetect>();
                 if (enemyCollision != null && enemyCollision.mainScript != null && enemyCollision.mainScript.IsOwner &&
                     enemyCollision.mainScript.enemyType.canDie && !enemyCollision.mainScript.isEnemyDead)
                 {
@@ -83,9 +81,9 @@ namespace PiggyVarietyMod.Patches
 
         void OnTriggerExit(Collider collider)
         {
-            if (collider.transform.parent.GetComponent<PlayerControllerB>() != null)
+            PlayerControllerB playerScript = collider.GetComponent<PlayerControllerB>();
+            if (playerScript != null)
             {
-                PlayerControllerB playerScript = collider.transform.parent.GetComponent<PlayerControllerB>();
                 teslaGate.engagingPlayerList.Remove(playerScript);
                 teslaGate.engagingList.Remove(collider.gameObject);
                 if (isIdleTrigger)
