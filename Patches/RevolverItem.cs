@@ -8,6 +8,14 @@ namespace PiggyVarietyMod.Patches
 {
     public class RevolverItem : GrabbableObject
     {
+        public static Dictionary<ulong, RuntimeAnimatorController> playerAnimatorDictionary = new Dictionary<ulong, RuntimeAnimatorController>();
+        private bool isCrouching;
+        private bool isJumping;
+        private bool isWalking;
+        private bool isSprinting;
+        private AnimatorStateInfo currentStateInfo;
+        private float currentAnimationTime;
+
         public int gunCompatibleAmmoID = 1410;
 
         public bool isReloading;
@@ -90,10 +98,6 @@ namespace PiggyVarietyMod.Patches
         public override void Update()
         {
             base.Update();
-            if (Plugin.revolverInfinityAmmo)
-            {
-                ammosLoaded = 6;
-            }
             if (!isReloading)
             {
                 switch (ammosLoaded)
@@ -127,6 +131,10 @@ namespace PiggyVarietyMod.Patches
         {
             base.EquipItem();
             SyncRevolverAmmoServerRpc(ammosLoaded);
+            if (playerHeldBy != null)
+            {
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, false);
+            }
             playerHeldBy.playerBodyAnimator.SetBool("ReloadRevolver", false);
             gunAnimator.SetBool("Reloading", false);
             revolverAmmoInHand.enabled = false;
@@ -145,6 +153,14 @@ namespace PiggyVarietyMod.Patches
                     revolverAmmos[i].enabled = true;
                 }
             }
+        }
+        public override void GrabItem()
+        {
+            if (playerHeldBy != null)
+            {
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, false);
+            }
+            base.GrabItem();
         }
 
         public override void GrabItemFromEnemy(EnemyAI enemy)
@@ -580,7 +596,7 @@ namespace PiggyVarietyMod.Patches
         [ServerRpc(RequireOwnership = false)]
         public void StartReloadGunClientRpc()
         {
-            if (ReloadedGun() && !isReloading)
+            if ((Plugin.customGunInfinityAmmo || ReloadedGun()) && !isReloading)
             {
                 StartCoroutine(ReloadGunAnimation());
             }
@@ -660,7 +676,7 @@ namespace PiggyVarietyMod.Patches
             yield return new WaitForSeconds(0.75f);
             if (playerHeldBy != null)
             {
-                if (playerHeldBy == StartOfRound.Instance.localPlayerController)
+                if (playerHeldBy == StartOfRound.Instance.localPlayerController && !Plugin.customGunInfinityAmmo)
                 {
                     playerHeldBy.DestroyItemInSlotAndSync(ammoSlotToUse);
                 }
@@ -775,12 +791,20 @@ namespace PiggyVarietyMod.Patches
 
         public override void PocketItem()
         {
+            if (playerHeldBy != null)
+            {
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, true);
+            }
             base.PocketItem();
             StopUsingGun();
         }
 
         public override void DiscardItem()
         {
+            if (playerHeldBy != null)
+            {
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, true);
+            }
             base.DiscardItem();
             StopUsingGun();
         }
@@ -825,6 +849,59 @@ namespace PiggyVarietyMod.Patches
                 revolverAmmoInHand.enabled = false;
                 isReloading = false;
             }
+        }
+
+        void UpdateAnimator(PlayerControllerB player, Animator playerBodyAnimator, bool restore)
+        {
+            if (!restore)
+            {
+                if (playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
+                {
+                    if (player == StartOfRound.Instance.localPlayerController)
+                    {
+                        SaveAnimatorStates(playerBodyAnimator);
+                        playerBodyAnimator.runtimeAnimatorController = Plugin.playerAnimator;
+                        RestoreAnimatorStates(playerBodyAnimator);
+                        Plugin.mls.LogInfo("Replace Player Animator!");
+                    }
+                    else
+                    {
+                        SaveAnimatorStates(playerBodyAnimator);
+                        playerBodyAnimator.runtimeAnimatorController = Plugin.otherPlayerAnimator;
+                        RestoreAnimatorStates(playerBodyAnimator);
+                        Plugin.mls.LogInfo("Replace Other Player Animator!");
+                    }
+                }
+            }
+            else
+            {
+                if (playerAnimatorDictionary.ContainsKey(player.playerClientId))
+                {
+                    playerBodyAnimator.runtimeAnimatorController = playerAnimatorDictionary[player.playerClientId];
+                    playerAnimatorDictionary.Remove(player.playerClientId);
+                    Plugin.mls.LogInfo("Restored Player Animator!");
+                }
+            }
+        }
+
+        void SaveAnimatorStates(Animator animator)
+        {
+            isCrouching = animator.GetBool("crouching");
+            isJumping = animator.GetBool("Jumping");
+            isWalking = animator.GetBool("Walking");
+            isSprinting = animator.GetBool("Sprinting");
+            currentStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            currentAnimationTime = currentStateInfo.normalizedTime;
+        }
+
+
+        public void RestoreAnimatorStates(Animator animator)
+        {
+            animator.Play(currentStateInfo.fullPathHash, 0, currentAnimationTime);
+            animator.SetBool("crouching", isCrouching);
+            animator.SetBool("Jumping", isJumping);
+            animator.SetBool("Walking", isWalking);
+            animator.SetBool("Sprinting", isSprinting);
         }
     }
 }

@@ -12,6 +12,10 @@ namespace PiggyVarietyMod.Patches
         [HarmonyPatch("Start")]
         private static void Start_Postfix(ref DungeonFlow[] ___dungeonFlowTypes)
         {
+            if (Plugin.translateKorean)
+            {
+                Plugin.gummyFlashlight.itemName = "젤리 손전등";
+            }
             /*
             Plugin.mls.LogInfo("TESTING flow: " + ___dungeonFlowTypes[0]);
             Plugin.mls.LogInfo("TESTING archetype: " + ___dungeonFlowTypes[0].Lines[0].DungeonArchetypes[0]);

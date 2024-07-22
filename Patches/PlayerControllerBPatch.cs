@@ -1,6 +1,7 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
 using MoreEmotes.Patch;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace PiggyVarietyMod.Patches
@@ -22,6 +23,7 @@ namespace PiggyVarietyMod.Patches
 
         private static bool pv_isPlayerFirstFrame;
 
+        /*
         [HarmonyPostfix]
         [HarmonyPatch("Update")]
         private static void Update_Postfix(PlayerControllerB __instance, ref Animator ___playerBodyAnimator)
@@ -50,9 +52,11 @@ namespace PiggyVarietyMod.Patches
                 }
             }
         }
+        */
 
         static void UpdateAnimator(PlayerControllerB __instance, Animator ___playerBodyAnimator)
         {
+            /*
             if (___playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && ___playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
             {
                 if (__instance == StartOfRound.Instance.localPlayerController)
@@ -66,6 +70,7 @@ namespace PiggyVarietyMod.Patches
                     Plugin.mls.LogInfo("Replace Other Player Animator!");
                 }
             }
+            */
         }
 
         static void UpdateMoreEmotesAnimator(PlayerControllerB __instance, Animator ___playerBodyAnimator)
