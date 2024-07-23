@@ -60,13 +60,17 @@ namespace PiggyVarietyMod.Patches
 
         private static IEnumerator ActivateLights(Transform parent)
         {
-            for (var index = 0; index < parent.childCount; index++)
+            for (int index = 0; index < parent.childCount; index++)
             {
-                var child = parent.GetChild(index);
+                Transform child = parent.GetChild(index);
+                if (child == null)
+                {
+                    continue;    
+                }
                 
-                var lights = child.GetComponents<Light>();
+                Light[] lights = child.GetComponents<Light>();
 
-                foreach (var light in lights)
+                foreach (Light light in lights)
                 {
                     if (light == null)
                     {
