@@ -54,6 +54,35 @@ namespace PiggyVarietyMod.Patches
             windUpSource.volume = 0.45f * Plugin.teslaSoundVolume;
             idleSource.volume = 0.45f * Plugin.teslaSoundVolume;
             crackSource.volume = 0.45f * Plugin.teslaSoundVolume;
+
+            StartCoroutine(ActivateLights(this.transform));
+        }
+
+        private static IEnumerator ActivateLights(Transform parent)
+        {
+            for (int index = 0; index < parent.childCount; index++)
+            {
+                Transform child = parent.GetChild(index);
+                if (child == null)
+                {
+                    continue;    
+                }
+                
+                Light[] lights = child.GetComponents<Light>();
+
+                foreach (Light light in lights)
+                {
+                    if (light == null)
+                    {
+                        continue;    
+                    }
+                    
+                    light.gameObject.SetActive(true);
+                }
+
+                yield return new WaitForEndOfFrame();
+                yield return ActivateLights(child);
+            }
         }
 
         void Update()
