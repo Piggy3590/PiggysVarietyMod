@@ -17,7 +17,7 @@ namespace PiggyVarietyMod
     {
         private const string modGUID = "Piggy.PiggyVarietyMod";
         private const string modName = "PiggyVarietyMod";
-        private const string modVersion = "1.3.3";
+        private const string modVersion = "1.3.17";
 
         private readonly Harmony harmony = new Harmony(modGUID);
 
@@ -25,6 +25,8 @@ namespace PiggyVarietyMod
 
         public static ManualLogSource mls;
         public static AssetBundle Bundle;
+
+        internal static PVInputActions InputActionInstance = new PVInputActions();
 
         public static GameObject teslaGateSpawn;
         public static GameObject teslaGatePrefab;
@@ -47,17 +49,24 @@ namespace PiggyVarietyMod
         public static Material blackRubber;
         public static GameObject gummylightPrefab;
         public static GameObject m4Prefab;
+        public static GameObject axePrefab;
 
         public static Item revolverItem;
         public static Item revolverAmmoItem;
         public static Item gummyFlashlight;
         public static Item arItem;
         public static Item arMagItem;
+        public static Item axeItem;
+
+        public static Item bulbItem;
+        public static Item chemicalItem;
 
         public static int revolverRarity;
         public static int revolverAmmoRarity;
         public static int revolverMaxPlayerDamage;
         public static int revolverMaxMonsterDamage;
+        public static int rifleMaxPlayerDamage;
+        public static int rifleMonsterDamage;
         public static bool customGunInfinityAmmo;
 
         public static int revolverPrice;
@@ -67,6 +76,10 @@ namespace PiggyVarietyMod
         public static int rifleMagPrice;
         public static int rifleRarity;
         public static int rifleMagRarity;
+        public static bool twoHandedRifle;
+
+        public static int bulbRarity;
+        public static int chemicalRarity;
 
         //public static int gummyLightRarity;
         //public static int gummyLightPrice;
@@ -118,9 +131,13 @@ namespace PiggyVarietyMod
 
             teslaSoundVolume = (float)base.Config.Bind<float>("Generic", "TeslaGateVolume", 1, "(Default 1) Sets the sound volume for Tesla Gate.").Value;
             teslaShake = (bool)base.Config.Bind<bool>("Generic", "TeslaGateShake", false, "(Experimental, Default false) Shake the screen when near Tesla Gate.").Value;
-            revolverMaxPlayerDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxPlayerDamage", 70, "(Default 70) Sets the maximum amount of damage the revolver can inflict on the player.").Value;
-            revolverMaxMonsterDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxMonsterDamage", 4, "(Default 4) Sets the maximum amount of damage the revolver can inflict on the monster.").Value;
+            revolverMaxPlayerDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxPlayerDamage", 70, "(Default 70) Sets the maximum amount of damage the Revolver can deals on the player.").Value;
+            revolverMaxMonsterDamage = (int)base.Config.Bind<int>("Generic", "RevolverMaxMonsterDamage", 4, "(Default 4) Sets the maximum amount of damage the Revolver can deals on the monster.").Value;
+            rifleMaxPlayerDamage = (int)base.Config.Bind<int>("Generic", "RifleMaxPlayerDamage", 22, "(Default 22) Sets the maximum amount of damage the Rifle can deals on the player.").Value;
+            rifleMonsterDamage = (int)base.Config.Bind<int>("Generic", "RifleMonsterDamage", 1, "(Default 1) Sets the amount of damage the Rifle deals to monsters.").Value;
             customGunInfinityAmmo = (bool)base.Config.Bind<bool>("Generic", "CustomGunInfinityAmmo", false, "(Default false) If true, reloading custom guns will no longer require ammo.").Value;
+            twoHandedRifle = (bool)base.Config.Bind<bool>("Generic", "TwoHandedRifle", false, "(Default false) If true, changes the rifle to a two-handed item.").Value;
+
             teslaSpawnWeight = (float)base.Config.Bind<float>("Spawn", "TeslaGateWeight", 1, "(Default 1) Sets the spawn weight for the Tesla Gate.").Value;
 
             revolverRarity = (int)base.Config.Bind<int>("Scrap", "RevolverRarity", 20, "(Default 20) Sets the spawn rarity for the Revolver.").Value;
@@ -135,6 +152,9 @@ namespace PiggyVarietyMod
             rifleRarity = (int)base.Config.Bind<int>("Scrap", "RifleRarity", 20, "(Default 20) Sets the spawn rarity for the Rifle.").Value;
             rifleMagRarity = (int)base.Config.Bind<int>("Scrap", "RifleMagRarity", 60, "(Default 60) Sets the spawn rarity for the Rifle magazine.").Value;
 
+            bulbRarity = (int)base.Config.Bind<int>("Scrap", "BulbRarity", 30, "(Default 30) Sets the spawn rarity for the Bulb.").Value;
+            chemicalRarity = (int)base.Config.Bind<int>("Scrap", "ChemicalRarity", 30, "(Default 30) Sets the spawn rarity for the Chemical.").Value;
+
             translateKorean = (bool)base.Config.Bind<bool>("Translation", "Enable Korean", false, "Set language to Korean.").Value;
 
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(teslaGatePrefab);
@@ -144,17 +164,29 @@ namespace PiggyVarietyMod
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(gummyFlashlight.spawnPrefab);
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(arItem.spawnPrefab);
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(arMagItem.spawnPrefab);
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(axeItem.spawnPrefab);
+
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(bulbItem.spawnPrefab);
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(chemicalItem.spawnPrefab);
             Utilities.FixMixerGroups(revolverItem.spawnPrefab);
             Utilities.FixMixerGroups(revolverAmmoItem.spawnPrefab);
             Utilities.FixMixerGroups(gummyFlashlight.spawnPrefab);
             Utilities.FixMixerGroups(arItem.spawnPrefab);
             Utilities.FixMixerGroups(arMagItem.spawnPrefab);
+            Utilities.FixMixerGroups(axeItem.spawnPrefab);
+
+            Utilities.FixMixerGroups(bulbItem.spawnPrefab);
+            Utilities.FixMixerGroups(chemicalItem.spawnPrefab);
 
             LethalLib.Modules.Items.RegisterItem(revolverItem);
             LethalLib.Modules.Items.RegisterItem(revolverAmmoItem);
             LethalLib.Modules.Items.RegisterItem(gummyFlashlight);
             LethalLib.Modules.Items.RegisterItem(arItem);
             LethalLib.Modules.Items.RegisterItem(arMagItem);
+            LethalLib.Modules.Items.RegisterItem(axeItem);
+
+            LethalLib.Modules.Items.RegisterItem(bulbItem);
+            LethalLib.Modules.Items.RegisterItem(chemicalItem);
 
             foreach (KeyValuePair<string, PluginInfo> pluginInfo in Chainloader.PluginInfos)
             {
@@ -174,6 +206,12 @@ namespace PiggyVarietyMod
             CreateShopItem();
             LethalLib.Modules.Items.RegisterScrap(revolverItem, revolverRarity, Levels.LevelTypes.All);
             LethalLib.Modules.Items.RegisterScrap(revolverAmmoItem, revolverAmmoRarity, Levels.LevelTypes.All);
+
+            LethalLib.Modules.Items.RegisterScrap(arItem, rifleRarity, Levels.LevelTypes.All);
+            LethalLib.Modules.Items.RegisterScrap(arMagItem, rifleMagRarity, Levels.LevelTypes.All);
+
+            LethalLib.Modules.Items.RegisterScrap(bulbItem, bulbRarity, Levels.LevelTypes.All);
+            LethalLib.Modules.Items.RegisterScrap(chemicalItem, chemicalRarity, Levels.LevelTypes.All);
             //LethalLib.Modules.Items.RegisterScrap(gummyFlashlight, gummyLightRarity, Levels.LevelTypes.All);
 
             /*
@@ -222,9 +260,15 @@ namespace PiggyVarietyMod
                 revolverAmmoItem = Bundle.LoadAsset<Item>("RevolverAmmo.asset");
                 arItem = Bundle.LoadAsset<Item>("M4A1.asset");
                 arMagItem = Bundle.LoadAsset<Item>("Magazine.asset");
+                axeItem = Bundle.LoadAsset<Item>("Axe.asset");
                 gummyFlashlight = Bundle.LoadAsset<Item>("GummyFlashlight.asset");
+
+                chemicalItem = Bundle.LoadAsset<Item>("Chemical.asset");
+                bulbItem = Bundle.LoadAsset<Item>("Bulb.asset");
+
                 gummylightPrefab = Bundle.LoadAsset<GameObject>("GummylightItem.prefab");
                 m4Prefab = Bundle.LoadAsset<GameObject>("M4Item.prefab");
+                axePrefab = Bundle.LoadAsset<GameObject>("AxeItem.prefab");
 
                 revolverAmmoInsert = Bundle.LoadAsset<AudioClip>("RevolverReload.wav");
                 revolverCylinderOpen = Bundle.LoadAsset<AudioClip>("RevolverCylinderOpen.wav");
@@ -301,6 +345,11 @@ namespace PiggyVarietyMod
                 m4Item.gunShootParticle = m4Item.transform.GetChild(5).GetChild(0).GetComponent<ParticleSystem>();
                 m4Item.gunRayPoint = m4Item.transform.GetChild(5);
 
+                if (twoHandedRifle)
+                {
+                    arItem.twoHanded = true;
+                }
+
                 gummyFlashlight.spawnPrefab = gummylightPrefab;
                 GummylightItem gummylightItem = gummyFlashlight.spawnPrefab.AddComponent<GummylightItem>();
                 gummylightItem.useCooldown = 0.12f;
@@ -323,6 +372,21 @@ namespace PiggyVarietyMod
                 gummylightItem.flashlightTypeID = 10;
                 Destroy(gummyFlashlight.spawnPrefab.GetComponent<FlashlightItem>());
 
+                axeItem.spawnPrefab = axePrefab;
+                AxeItem axeScript = axeItem.spawnPrefab.AddComponent<AxeItem>();
+                Shovel shovelScript = axeItem.spawnPrefab.GetComponent<Shovel>();
+
+                axeScript.itemProperties = axeItem;
+                axeScript.grabbable = true;
+                axeScript.isInFactory = true;
+                axeScript.grabbableToEnemies = true;
+                axeScript.shovelHitForce = 1;
+                axeScript.reelUp = shovelScript.reelUp;
+                axeScript.swing = shovelScript.swing;
+                axeScript.hitSFX = shovelScript.hitSFX;
+                axeScript.shovelAudio = shovelScript.shovelAudio;
+                Destroy(shovelScript);
+
                 base.Logger.LogInfo("Successfully loaded assets!");
             }
             catch (Exception ex2)
@@ -344,8 +408,14 @@ namespace PiggyVarietyMod
             arItem.toolTips[1] = "재장전 : [E]";
             arItem.toolTips[2] = "탄약 확인하기 : [Q]";
 
+            axeItem.toolTips[0] = "도끼 휘두르기 : [RMB]";
+
             revolverItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "리볼버";
             revolverAmmoItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "총알";
+            arItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "소총";
+            arMagItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "탄창";
+            bulbItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "전구";
+            chemicalItem.spawnPrefab.GetComponentInChildren<ScanNodeProperties>().headerText = "화학 약품";
         }
 
         void CreateShopItem()
@@ -357,6 +427,10 @@ namespace PiggyVarietyMod
                 gummyFlashlight.itemName = "젤리";
                 arMagItem.itemName = "탄창";
                 arItem.itemName = "소총";
+                axeItem.itemName = "도끼";
+
+                chemicalItem.itemName = "화학 약품";
+                bulbItem.itemName = "전구";
             }
             else
             {
@@ -365,6 +439,7 @@ namespace PiggyVarietyMod
                 gummyFlashlight.itemName = "Gummy flashlight";
                 arMagItem.itemName = "Magazine";
                 arItem.itemName = "Rifle";
+                axeItem.itemName = "Axe";
             }
 
             //Revolver

@@ -65,18 +65,18 @@ namespace PiggyVarietyMod.Patches
                 Transform child = parent.GetChild(index);
                 if (child == null)
                 {
-                    continue;    
+                    continue;
                 }
-                
+
                 Light[] lights = child.GetComponents<Light>();
 
                 foreach (Light light in lights)
                 {
                     if (light == null)
                     {
-                        continue;    
+                        continue;
                     }
-                    
+
                     light.gameObject.SetActive(true);
                 }
 

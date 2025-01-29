@@ -82,12 +82,21 @@ namespace PiggyVarietyMod.Patches
         public override void Update()
         {
             base.Update();
+            if (playerHeldBy == null)
+            {
+                return;
+            }
+
             if (!isInspecting && isFiring && !isReloading && !cantFire && !playerHeldBy.playerBodyAnimator.GetBool("ReloadM4"))
             {
                 if (ammosLoaded > 0)
                 {
                     ShootGunAndSync(true);
                 }
+            }
+            if (Plugin.InputActionInstance.RifleReloadKey.triggered && !isReloading && ammosLoaded < 30)
+            {
+                StartReloadGun();
             }
         }
 
@@ -264,26 +273,6 @@ namespace PiggyVarietyMod.Patches
                 gunBulletsRicochetAudio.Play();
             }
 
-            /*
-            RaycastHit hitTest;
-            if (playerHeldBy == StartOfRound.Instance.localPlayerController)
-            {
-                if (Physics.Raycast(playerHeldBy.cameraContainerTransform.transform.position, playerHeldBy.cameraContainerTransform.transform.forward, out hitTest, Mathf.Infinity))
-                {
-                    if (hitTest.collider.GetComponent<EnemyAICollisionDetect>() != null)
-                    {
-                        EnemyAI mainScript = hitTest.collider.GetComponent<EnemyAICollisionDetect>().mainScript;
-                        IHittable hittable;
-                        if (hitTest.collider.transform.TryGetComponent<IHittable>(out hittable))
-                        {
-                            Plugin.mls.LogWarning("HIT ENEMY! RANGE: " + hitTest.distance);
-                            hittable.Hit(9999, playerHeldBy.cameraContainerTransform.forward, this.playerHeldBy, true, -1);
-                        }    
-                    }
-                }
-            }
-            */
-
             if (playerHeldBy == StartOfRound.Instance.localPlayerController)
             {
                 int num4 = Physics.SphereCastNonAlloc(ray, 0.25f, enemyColliders, Mathf.Infinity, 524288, QueryTriggerInteraction.Collide);
@@ -316,18 +305,8 @@ namespace PiggyVarietyMod.Patches
                             {
                                 Vector3 hitDirection = playerHeldBy.gameplayCamera.transform.forward;
                                 float distance = Vector3.Distance(playerHeldBy.gameplayCamera.transform.position, this.enemyColliders[i].point);
-                                int damage;
-                                if (distance < 15f)
-                                {
-                                    damage = 2;
-                                }
-                                else
-                                {
-                                    damage = 1;
-                                }
-
-                                Plugin.mls.LogInfo("Damage to enemy, damage: " + damage + ", distance:" + distance);
-                                hittable.Hit(damage, hitDirection, playerHeldBy, true, -1);
+                                Plugin.mls.LogInfo("Damage to enemy, damage: " + Plugin.rifleMonsterDamage + ", distance:" + distance);
+                                hittable.Hit(Plugin.rifleMonsterDamage, hitDirection, playerHeldBy, true, -1);
                             }
                             else
                             {
@@ -335,35 +314,6 @@ namespace PiggyVarietyMod.Patches
                             }
                         }
                     }
-                    /*
-                    else if (enemyColliders[i].transform.GetComponent<EnemyAI>())
-                    {
-                        EnemyAI mainScript = this.enemyColliders[i].transform.GetComponent<EnemyAI>();
-
-                        IHittable hittable;
-                        if (this.enemyColliders[i].transform.GetComponentInChildren<EnemyAICollisionDetect>().TryGetComponent<IHittable>(out hittable))
-                        {
-                            Vector3 hitDirection = playerHeldBy.cameraContainerTransform.forward;
-                            float num5 = Vector3.Distance(playerHeldBy.cameraContainerTransform.position, this.enemyColliders[i].point);
-                            int num6;
-                            Debug.Log("Damage to enemy: " + num5);
-                            if (num5 < 10f)
-                            {
-                                num6 = 3;
-                            }
-                            else if (num5 < 20f)
-                            {
-                                num6 = 2;
-                            }
-                            else
-                            {
-                                num6 = 1;
-                            }
-                            Debug.Log(string.Format("Hit enemy, hitDamage: {0}", num6));
-                            hittable.Hit(num6, hitDirection, this.playerHeldBy, true, -1);
-                        }
-                    }
-                    */
                 }
             }
 
@@ -381,17 +331,17 @@ namespace PiggyVarietyMod.Patches
                     float distance = Vector3.Distance(playerHeldBy.gameplayCamera.transform.position, playerColliders[i].point);
                     if (distance < 10)
                     {
-                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(20, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
+                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(Plugin.rifleMaxPlayerDamage, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
                     }
                     else if (distance < 25)
                     {
-                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(18, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
+                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(Mathf.RoundToInt(Plugin.rifleMaxPlayerDamage - (Plugin.rifleMaxPlayerDamage / 3)), true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
                     }
                     else
                     {
-                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(16, true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
+                        playerColliders[i].transform.GetComponent<PlayerControllerB>().DamagePlayer(Mathf.RoundToInt(Plugin.rifleMaxPlayerDamage / 3), true, true, CauseOfDeath.Gunshots, 0, false, playerHeldBy.gameplayCamera.transform.forward * 30f);
                     }
-                    Debug.Log("Rifle vs Player why COD");
+                    Debug.Log("Player ouch");
                 }
             }
         }
@@ -413,10 +363,6 @@ namespace PiggyVarietyMod.Patches
             if (!right)
             {
                 StartCheckMagazine();
-            }
-            else if (!isInspecting && !isReloading && ammosLoaded < 30)
-            {
-                StartReloadGun();
             }
         }
 
@@ -517,6 +463,8 @@ namespace PiggyVarietyMod.Patches
             if (base.IsOwner)
             {
                 HUDManager.Instance.ChangeControlTip(3, changeTo);
+                string text = Plugin.InputActionInstance.RifleReloadKey.GetBindingDisplayString().Replace(" | ", "");
+                HUDManager.Instance.ChangeControlTip(2, "Reload : [" + text + "]");
             }
         }
 
@@ -547,6 +495,8 @@ namespace PiggyVarietyMod.Patches
             if (base.IsOwner)
             {
                 HUDManager.Instance.ChangeControlTip(3, changeTo);
+                string text = Plugin.InputActionInstance.RifleReloadKey.GetBindingDisplayString().Replace(" | ", "");
+                HUDManager.Instance.ChangeControlTip(2, "재장전 : [" + text + "]");
             }
         }
 
