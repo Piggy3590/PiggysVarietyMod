@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -74,7 +72,7 @@ namespace PiggyVarietyMod.Patches
                 SwitchFlashlight(used);
             }
             flashlightAudio.PlayOneShot(flashlightClips[Random.Range(0, flashlightClips.Length)]);
-            RoundManager.Instance.PlayAudibleNoise(base.transform.position, 7f, 0.4f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
+            RoundManager.Instance.PlayAudibleNoise(transform.position, 7f, 0.4f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
         }
 
         public override void UseUpBatteries()
@@ -82,13 +80,13 @@ namespace PiggyVarietyMod.Patches
             base.UseUpBatteries();
             SwitchFlashlight(on: false);
             flashlightAudio.PlayOneShot(outOfBatteriesClip, 1f);
-            RoundManager.Instance.PlayAudibleNoise(base.transform.position, 13f, 0.65f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
+            RoundManager.Instance.PlayAudibleNoise(transform.position, 13f, 0.65f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
         }
 
         public override void PocketItem()
         {
             previousPlayerHeldBy.equippedUsableItemQE = false;
-            if (!base.IsOwner)
+            if (!IsOwner)
             {
                 base.PocketItem();
                 return;
@@ -118,7 +116,7 @@ namespace PiggyVarietyMod.Patches
                 Debug.Log("Could not find what player was holding this flashlight item");
             }
 
-            if (base.IsOwner && playerHeldBy != null)
+            if (IsOwner && playerHeldBy != null)
             {
                 playerHeldBy.equippedUsableItemQE = false;
             }
@@ -135,7 +133,7 @@ namespace PiggyVarietyMod.Patches
         [ClientRpc]
         public void PocketFlashlightClientRpc(bool stillUsingFlashlight)
         {
-            if (base.IsOwner)
+            if (IsOwner)
             {
                 return;
             }
@@ -190,7 +188,7 @@ namespace PiggyVarietyMod.Patches
         public void SwitchFlashlight(bool on)
         {
             isBeingUsed = on;
-            if (!base.IsOwner)
+            if (!IsOwner)
             {
                 Debug.Log($"Flashlight click. playerheldby null?: {playerHeldBy != null}");
                 Debug.Log($"Flashlight being disabled or enabled: {on}");
@@ -263,9 +261,9 @@ namespace PiggyVarietyMod.Patches
                     insertedBattery = new Battery(false, newBattery * 0.01f);
                     SyncBatteryServerRpc(100);
                 }
-                if (base.IsOwner)
+                if (IsOwner)
                 {
-                    RoundManager.Instance.PlayAudibleNoise(base.transform.position, 5f, 0.2f, 0, this.isInElevator && StartOfRound.Instance.hangarDoorsClosed, 941);
+                    RoundManager.Instance.PlayAudibleNoise(transform.position, 5f, 0.2f, 0, this.isInElevator && StartOfRound.Instance.hangarDoorsClosed, 941);
                 }
             }
         }

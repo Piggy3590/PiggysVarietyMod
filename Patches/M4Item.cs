@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,7 +8,6 @@ namespace PiggyVarietyMod.Patches
 {
     public class M4Item : GrabbableObject
     {
-        public static Dictionary<ulong, RuntimeAnimatorController> playerAnimatorDictionary = new Dictionary<ulong, RuntimeAnimatorController>();
         private bool isCrouching;
         private bool isJumping;
         private bool isWalking;
@@ -61,6 +58,8 @@ namespace PiggyVarietyMod.Patches
         private RaycastHit[] playerColliders;
 
         private EnemyAI heldByEnemy;
+
+        private static RuntimeAnimatorController originalPlayerAnimator;
 
         public override void Start()
         {
@@ -169,7 +168,7 @@ namespace PiggyVarietyMod.Patches
                 gunPosition = GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.position - GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.up * 0.45f;
                 forward = GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.forward;
             }
-            ShootGun(gunPosition, forward);;
+            ShootGun(gunPosition, forward); ;
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -524,7 +523,8 @@ namespace PiggyVarietyMod.Patches
                 if (Plugin.translateKorean)
                 {
                     KR_SetAmmoControlTip(true);
-                }else
+                }
+                else
                 {
                     SetAmmoControlTip(true);
                 }
@@ -607,6 +607,12 @@ namespace PiggyVarietyMod.Patches
             {
                 if (playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
                 {
+                    if (originalPlayerAnimator != null)
+                    {
+                        Destroy(originalPlayerAnimator);
+                    }
+                    originalPlayerAnimator = Instantiate(player.playerBodyAnimator.runtimeAnimatorController);
+                    originalPlayerAnimator.name = "DefaultPlayerAnimator";
                     if (player == StartOfRound.Instance.localPlayerController)
                     {
                         SaveAnimatorStates(playerBodyAnimator);
@@ -625,12 +631,10 @@ namespace PiggyVarietyMod.Patches
             }
             else
             {
-                if (playerAnimatorDictionary.ContainsKey(player.playerClientId))
-                {
-                    playerBodyAnimator.runtimeAnimatorController = playerAnimatorDictionary[player.playerClientId];
-                    playerAnimatorDictionary.Remove(player.playerClientId);
-                    Plugin.mls.LogInfo("Restored Player Animator!");
-                }
+                SaveAnimatorStates(playerBodyAnimator);
+                playerBodyAnimator.runtimeAnimatorController = Plugin.otherPlayerAnimator;
+                RestoreAnimatorStates(playerBodyAnimator);
+                Plugin.mls.LogInfo("Replace Other Player Animator!");
             }
         }
 
@@ -643,7 +647,6 @@ namespace PiggyVarietyMod.Patches
             currentStateInfo = animator.GetCurrentAnimatorStateInfo(0);
             currentAnimationTime = currentStateInfo.normalizedTime;
         }
-
 
         public void RestoreAnimatorStates(Animator animator)
         {

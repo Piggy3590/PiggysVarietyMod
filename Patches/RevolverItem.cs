@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using GameNetcodeStuff;
+using LethalLib.Modules;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -8,7 +10,6 @@ namespace PiggyVarietyMod.Patches
 {
     public class RevolverItem : GrabbableObject
     {
-        public static Dictionary<ulong, RuntimeAnimatorController> playerAnimatorDictionary = new Dictionary<ulong, RuntimeAnimatorController>();
         private bool isCrouching;
         private bool isJumping;
         private bool isWalking;
@@ -77,6 +78,8 @@ namespace PiggyVarietyMod.Patches
         private RaycastHit[] playerColliders;
 
         private EnemyAI heldByEnemy;
+
+        private static RuntimeAnimatorController originalPlayerAnimator;
 
         public override void Start()
         {
@@ -247,8 +250,8 @@ namespace PiggyVarietyMod.Patches
 
         public void ShootGun(Vector3 revolverPosition, Vector3 revolverForward)
         {
-            CentipedeAI[] array = GameObject.FindObjectsByType<CentipedeAI>(FindObjectsSortMode.None);
-            FlowerSnakeEnemy[] array2 = GameObject.FindObjectsByType<FlowerSnakeEnemy>(FindObjectsSortMode.None);
+            CentipedeAI[] array = FindObjectsByType<CentipedeAI>(FindObjectsSortMode.None);
+            FlowerSnakeEnemy[] array2 = FindObjectsByType<FlowerSnakeEnemy>(FindObjectsSortMode.None);
             for (int i = 0; i < array.Length; i++)
             {
                 if (array[i].clingingToPlayer == playerHeldBy)
@@ -581,7 +584,7 @@ namespace PiggyVarietyMod.Patches
                 changeTo = ((!playerHeldBy.playerBodyAnimator.GetBool("ReloadRevolver")) ? "Open cylinder: [Q]" : "Close cylinder: [Q]");
             }
 
-            if (base.IsOwner)
+            if (IsOwner)
             {
                 HUDManager.Instance.ChangeControlTip(3, changeTo);
             }
@@ -700,7 +703,7 @@ namespace PiggyVarietyMod.Patches
                 }
                 revolverAmmoInHand.enabled = false;
             }
-            revolverAmmoInHandTransform.SetParent(base.transform);
+            revolverAmmoInHandTransform.SetParent(transform);
             yield return new WaitForSeconds(1f);
             gunAudio.PlayOneShot(gunReloadFinishSFX);
             WalkieTalkie.TransmitOneShotAudio(gunAudio, gunReloadFinishSFX);
@@ -812,7 +815,7 @@ namespace PiggyVarietyMod.Patches
         [ServerRpc(RequireOwnership = false)]
         public void SyncRevolverAmmoServerRpc(int ammoCount)
         {
-            if (base.IsOwner)
+            if (IsOwner)
             {
                 SyncRevolverAmmoClientRpc(ammoCount);
             }
@@ -845,7 +848,7 @@ namespace PiggyVarietyMod.Patches
                 }   
                 gunAnimator.SetBool("Reloading", false);
                 gunAudio.Stop();
-                revolverAmmoInHandTransform.SetParent(base.transform);
+                revolverAmmoInHandTransform.SetParent(transform);
                 revolverAmmoInHand.enabled = false;
                 isReloading = false;
             }
@@ -857,6 +860,12 @@ namespace PiggyVarietyMod.Patches
             {
                 if (playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
                 {
+                    if (originalPlayerAnimator != null)
+                    {
+                        Destroy(originalPlayerAnimator);
+                    }
+                    originalPlayerAnimator = Instantiate(player.playerBodyAnimator.runtimeAnimatorController);
+                    originalPlayerAnimator.name = "DefaultPlayerAnimator";
                     if (player == StartOfRound.Instance.localPlayerController)
                     {
                         SaveAnimatorStates(playerBodyAnimator);
@@ -875,12 +884,10 @@ namespace PiggyVarietyMod.Patches
             }
             else
             {
-                if (playerAnimatorDictionary.ContainsKey(player.playerClientId))
-                {
-                    playerBodyAnimator.runtimeAnimatorController = playerAnimatorDictionary[player.playerClientId];
-                    playerAnimatorDictionary.Remove(player.playerClientId);
-                    Plugin.mls.LogInfo("Restored Player Animator!");
-                }
+                SaveAnimatorStates(playerBodyAnimator);
+                playerBodyAnimator.runtimeAnimatorController = originalPlayerAnimator;
+                RestoreAnimatorStates(playerBodyAnimator);
+                Plugin.mls.LogInfo("Restored Player Animator!");
             }
         }
 

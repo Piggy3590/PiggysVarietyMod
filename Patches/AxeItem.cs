@@ -85,7 +85,7 @@ public class AxeItem : GrabbableObject
     [ClientRpc]
     public void ReelUpSFXClientRpc()
     {
-        if (!base.IsOwner)
+        if (!IsOwner)
         {
             shovelAudio.PlayOneShot(reelUp);
         }
@@ -138,7 +138,7 @@ public class AxeItem : GrabbableObject
                 if (this.objectsHitByShovelList[i].transform.TryGetComponent<IHittable>(out hittable) && !(this.objectsHitByShovelList[i].transform == this.previousPlayerHeldBy.transform) && (this.objectsHitByShovelList[i].point == Vector3.zero || !Physics.Linecast(this.previousPlayerHeldBy.gameplayCamera.transform.position, this.objectsHitByShovelList[i].point, out raycastHit, StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore)))
                 {
                     TerrainObstacleTrigger terrainObstacleTrigger = objectsHitByShovelList[i].collider.GetComponentInChildren<TerrainObstacleTrigger>();
-                    if (terrainObstacleTrigger != null && base.IsOwner)
+                    if (terrainObstacleTrigger != null && IsOwner)
                     {
                         RoundManager.Instance.DestroyTreeOnLocalClient(terrainObstacleTrigger.transform.position);
                     }
@@ -202,7 +202,7 @@ public class AxeItem : GrabbableObject
         if (flag)
         {
             RoundManager.PlayRandomClip(this.shovelAudio, this.hitSFX, true, 1f, 0, 1000);
-            GameObject.FindObjectOfType<RoundManager>().PlayAudibleNoise(base.transform.position, 17f, 0.8f, 0, false, 0);
+            FindObjectOfType<RoundManager>().PlayAudibleNoise(transform.position, 17f, 0.8f, 0, false, 0);
             if (!flag2 && num != -1)
             {
                 this.shovelAudio.PlayOneShot(StartOfRound.Instance.footstepSurfaces[num].hitSurfaceSFX);
@@ -223,7 +223,7 @@ public class AxeItem : GrabbableObject
     [ClientRpc]
     public void HitShovelClientRpc(int hitSurfaceID)
     {
-        if (!base.IsOwner)
+        if (!IsOwner)
         {
             RoundManager.PlayRandomClip(shovelAudio, hitSFX);
             if (hitSurfaceID != -1)
