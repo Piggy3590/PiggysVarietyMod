@@ -594,7 +594,7 @@ namespace PiggyVarietyMod.Patches
             StartReloadGunClientRpc();
         }
 
-        [ServerRpc(RequireOwnership = false)]
+        [ClientRpc]
         public void StartReloadGunClientRpc()
         {
             if ((Plugin.customGunInfinityAmmo || ReloadedGun()) && !isReloading)
