@@ -580,7 +580,7 @@ namespace PiggyVarietyMod.Patches
             else
             {
                 SaveAnimatorStates(playerBodyAnimator);
-                playerBodyAnimator.runtimeAnimatorController = Plugin.otherPlayerAnimator;
+                playerBodyAnimator.runtimeAnimatorController = originalPlayerAnimator;
                 RestoreAnimatorStates(playerBodyAnimator);
                 Plugin.mls.LogInfo("Replace Other Player Animator!");
             }
