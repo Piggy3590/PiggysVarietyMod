@@ -48,7 +48,7 @@ namespace PiggyVarietyMod.Patches
             grabbableToEnemies = true;
             flashlightBulb = transform.GetChild(0).GetComponent<Light>();
             flashlightBulbGlow = transform.GetChild(1).GetComponent<Light>();
-            flashlightAudio = this.GetComponent<AudioSource>();
+            flashlightAudio = GetComponent<AudioSource>();
             flashlightClips = new AudioClip[] { Plugin.gummylightClick };
             outOfBatteriesClip = Plugin.gummylightOutage;
             flashlightFlicker = Plugin.flashFlicker;
@@ -60,7 +60,7 @@ namespace PiggyVarietyMod.Patches
             grabbable = true;
             flashlightTypeID = 0;
             itemProperties.batteryUsage = 60;
-            Destroy(this.GetComponent<FlashlightItem>());
+            Destroy(GetComponent<FlashlightItem>());
 
             base.Start();
             initialIntensity = flashlightBulb.intensity;
@@ -302,12 +302,12 @@ namespace PiggyVarietyMod.Patches
                 reachedFloorTarget = false;
             }
 
-            int num = ((flashlightInterferenceLevel <= globalFlashlightInterferenceLevel) ? globalFlashlightInterferenceLevel : flashlightInterferenceLevel);
-            if (num >= 2)
+            int flashlightIntensity = ((flashlightInterferenceLevel <= globalFlashlightInterferenceLevel) ? globalFlashlightInterferenceLevel : flashlightInterferenceLevel);
+            if (flashlightIntensity >= 2)
             {
                 flashlightBulb.intensity = 0f;
             }
-            else if (num == 1)
+            else if (flashlightIntensity == 1)
             {
                 flashlightBulb.intensity = Random.Range(0f, 200f);
             }
@@ -336,7 +336,7 @@ namespace PiggyVarietyMod.Patches
                 }
                 if (IsOwner)
                 {
-                    RoundManager.Instance.PlayAudibleNoise(transform.position, 5f, 0.2f, 0, this.isInElevator && StartOfRound.Instance.hangarDoorsClosed, 941);
+                    RoundManager.Instance.PlayAudibleNoise(transform.position, 5f, 0.2f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed, 941);
                 }
                 isBeingUsed = false;
             }

@@ -88,12 +88,6 @@ namespace PiggyVarietyMod
 
         public static bool translateKorean;
 
-        
-        /*
-        public static GameObject revolverPrefab;
-        public static GameObject revolverAmmoPrefab;
-        */
-
         public static AudioClip revolverAmmoInsert;
         public static AudioClip revolverCylinderOpen;
         public static AudioClip revolverCylinderClose;
@@ -122,7 +116,6 @@ namespace PiggyVarietyMod
 
             LoadAssets();
 
-            //harmony.PatchAll();
             mls = BepInEx.Logging.Logger.CreateLogSource(modGUID);
             mls.LogInfo("Piggy's Variety Mod is loaded");
 
@@ -199,11 +192,6 @@ namespace PiggyVarietyMod
             Items.RegisterScrap(bulbItem, bulbRarity, Levels.LevelTypes.All);
             Items.RegisterScrap(chemicalItem, chemicalRarity, Levels.LevelTypes.All);
             Items.RegisterScrap(gummyFlashlight, gummyLightRarity, Levels.LevelTypes.All);
-
-            /*
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(revolverPrefab);
-            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(revolverAmmoPrefab);
-            */
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
         }
@@ -363,11 +351,11 @@ namespace PiggyVarietyMod
                 axeScript.grabbable = true;
                 axeScript.isInFactory = true;
                 axeScript.grabbableToEnemies = true;
-                axeScript.shovelHitForce = 1;
+                axeScript.axeHitForce = 1;
                 axeScript.reelUp = shovelScript.reelUp;
                 axeScript.swing = shovelScript.swing;
                 axeScript.hitSFX = shovelScript.hitSFX;
-                axeScript.shovelAudio = shovelScript.shovelAudio;
+                axeScript.axeAudio = shovelScript.shovelAudio;
                 Destroy(shovelScript);
 
                 Logger.LogInfo("Successfully loaded assets!");

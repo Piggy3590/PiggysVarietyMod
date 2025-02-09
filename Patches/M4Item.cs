@@ -33,16 +33,12 @@ namespace PiggyVarietyMod.Patches
 
         public AudioSource gunBulletsRicochetAudio;
 
-        //private Coroutine gunCoroutine;
-
         public AudioClip gunShootSFX;
 
         public AudioClip gunReloadSFX;
         public AudioClip gunInspectSFX;
 
         public AudioClip noAmmoSFX;
-
-        //private bool hasHitGroundWithSafetyOff = true;
 
         private int ammoSlotToUse = -1;
 
@@ -65,19 +61,16 @@ namespace PiggyVarietyMod.Patches
         {
             base.Start();
         }
-
         public override int GetItemDataToSave()
         {
             base.GetItemDataToSave();
             return ammosLoaded;
         }
-
         public override void LoadItemSaveData(int saveData)
         {
             base.LoadItemSaveData(saveData);
             ammosLoaded = saveData;
         }
-
         public override void Update()
         {
             base.Update();
@@ -104,7 +97,6 @@ namespace PiggyVarietyMod.Patches
             base.EquipItem();
             previousPlayerHeldBy = playerHeldBy;
             previousPlayerHeldBy.equippedUsableItemQE = true;
-            //hasHitGroundWithSafetyOff = false;
             if (playerHeldBy != null)
             {
                 UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, false);
@@ -131,7 +123,6 @@ namespace PiggyVarietyMod.Patches
         {
             base.GrabItemFromEnemy(enemy);
             heldByEnemy = enemy;
-            //hasHitGroundWithSafetyOff = false;
         }
 
         public override void DiscardItemFromEnemy()
@@ -226,11 +217,9 @@ namespace PiggyVarietyMod.Patches
                 }
             }
             StartCoroutine(FireDelay());
-            //bool flag = false;
             if (isHeld && playerHeldBy != null && playerHeldBy == GameNetworkManager.Instance.localPlayerController)
             {
                 playerHeldBy.playerBodyAnimator.SetTrigger("ShootM4");
-                //flag = true;
             }
             gunAnimator.SetTrigger("Fire");
             gunShootAudio.PlayOneShot(gunShootSFX);
@@ -242,20 +231,11 @@ namespace PiggyVarietyMod.Patches
             {
                 return;
             }
-            float num = Vector3.Distance(localPlayerController.transform.position, gunRayPoint.transform.position);
+            float gunPlayerDistance = Vector3.Distance(localPlayerController.transform.position, gunRayPoint.transform.position);
             Vector3 vector = localPlayerController.playerCollider.ClosestPoint(gunPosition);
-            /*bool flag2 = false;
-            int num2 = 0;
-            float num3 = 0f;
-            if (!flag && !Physics.Linecast(gunPosition, vector, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore) && Vector3.Angle(gunForward, vector - gunPosition) < 30f)
+            if (gunPlayerDistance < 12f)
             {
-               flag2 = true;
-            }*/
-            if (num < 12f)
-            {
-                //num3 = 0.25f;
                 HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
-                //num2 = 100;
             }
 
             Ray ray = new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward);
@@ -274,15 +254,15 @@ namespace PiggyVarietyMod.Patches
 
             if (playerHeldBy == StartOfRound.Instance.localPlayerController)
             {
-                int num4 = Physics.SphereCastNonAlloc(ray, 0.25f, enemyColliders, Mathf.Infinity, 524288, QueryTriggerInteraction.Collide);
+                int enemyHitCount = Physics.SphereCastNonAlloc(ray, 0.25f, enemyColliders, Mathf.Infinity, 524288, QueryTriggerInteraction.Collide);
 
-                for (int i = 0; i < num4; i++)
+                for (int i = 0; i < enemyHitCount; i++)
                 {
                     Debug.Log("Raycasting enemy");
-                    if (this.enemyColliders[i].transform.GetComponent<EnemyAICollisionDetect>())
+                    if (enemyColliders[i].transform.GetComponent<EnemyAICollisionDetect>())
                     {
-                        EnemyAI mainScript = this.enemyColliders[i].transform.GetComponent<EnemyAICollisionDetect>().mainScript;
-                        if (this.heldByEnemy != null && this.heldByEnemy == mainScript)
+                        EnemyAI mainScript = enemyColliders[i].transform.GetComponent<EnemyAICollisionDetect>().mainScript;
+                        if (heldByEnemy != null && heldByEnemy == mainScript)
                         {
                             Debug.Log("Rifle is held by enemy, skipping enemy raycast");
                         }
@@ -290,26 +270,26 @@ namespace PiggyVarietyMod.Patches
                         {
                             Debug.Log("Hit enemy " + mainScript.enemyType.enemyName);
                             IHittable hittable;
-                            if (this.enemyColliders[i].distance == 0f)
+                            if (enemyColliders[i].distance == 0f)
                             {
                                 Debug.Log("Spherecast started inside enemy collider");
                             }
-                            else if (Physics.Linecast(playerHeldBy.gameplayCamera.transform.position, this.enemyColliders[i].point, out hit, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
+                            else if (Physics.Linecast(playerHeldBy.gameplayCamera.transform.position, enemyColliders[i].point, out hit, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                             {
                                 Debug.DrawRay(hit.point, Vector3.up, Color.red, 15f);
-                                Debug.DrawLine(playerHeldBy.gameplayCamera.transform.position, this.enemyColliders[i].point, Color.cyan, 15f);
+                                Debug.DrawLine(playerHeldBy.gameplayCamera.transform.position, enemyColliders[i].point, Color.cyan, 15f);
                                 Plugin.mls.LogInfo("Raycast hit wall: " + hit.collider.gameObject.name + ", distance: " + hit.distance);
                             }
-                            else if (this.enemyColliders[i].transform.TryGetComponent<IHittable>(out hittable))
+                            else if (enemyColliders[i].transform.TryGetComponent<IHittable>(out hittable))
                             {
                                 Vector3 hitDirection = playerHeldBy.gameplayCamera.transform.forward;
-                                float distance = Vector3.Distance(playerHeldBy.gameplayCamera.transform.position, this.enemyColliders[i].point);
+                                float distance = Vector3.Distance(playerHeldBy.gameplayCamera.transform.position, enemyColliders[i].point);
                                 Plugin.mls.LogInfo("Damage to enemy, damage: " + Plugin.rifleMonsterDamage + ", distance:" + distance);
                                 hittable.Hit(Plugin.rifleMonsterDamage, hitDirection, playerHeldBy, true, -1);
                             }
                             else
                             {
-                                Plugin.mls.LogInfo("Could not get hittable script from collider, transform: " + this.enemyColliders[i].transform.name);
+                                Plugin.mls.LogInfo("Could not get hittable script from collider, transform: " + enemyColliders[i].transform.name);
                             }
                         }
                     }
@@ -343,12 +323,6 @@ namespace PiggyVarietyMod.Patches
                     Debug.Log("Player ouch");
                 }
             }
-        }
-
-        private IEnumerator delayedEarsRinging(float effectSeverity)
-        {
-            yield return new WaitForSeconds(0.25f);
-            SoundManager.Instance.earsRingingTimer = effectSeverity;
         }
 
         public override void ItemInteractLeftRight(bool right)
@@ -413,28 +387,6 @@ namespace PiggyVarietyMod.Patches
             yield return new WaitForSeconds(1f);
             isInspecting = false;
         }
-
-        /*
-        public override void SetControlTipsForItem()
-        {
-            string[] toolTips = itemProperties.toolTips;
-            if (toolTips.Length <= 2)
-            {
-                Debug.LogError("Shotgun control tips array length is too short to set tips!");
-                return;
-            }
-            if (playerHeldBy.playerBodyAnimator.GetBool("ReloadM4"))
-            {
-                toolTips[2] = "Close cylinder: [Q]";
-            }
-            else
-            {
-                toolTips[2] = "Open cylinder: [Q]";
-            }
-            HUDManager.Instance.ChangeControlTipMultiple(toolTips, holdingItem: true, itemProperties);
-        }
-        */
-
         private void SetAmmoControlTip(bool isChecking)
         {
             string changeTo = "Check ammo : [Q]";
@@ -535,14 +487,14 @@ namespace PiggyVarietyMod.Patches
 
         private bool ReloadedGun()
         {
-            int num = FindAmmoInInventory();
-            if (num == -1)
+            int ammoInv = FindAmmoInInventory();
+            if (ammoInv == -1)
             {
                 Debug.Log("not reloading");
                 return false;
             }
             Debug.Log("reloading!");
-            ammoSlotToUse = num;
+            ammoSlotToUse = ammoInv;
             return true;
         }
 
@@ -590,10 +542,6 @@ namespace PiggyVarietyMod.Patches
         private void StopUsingGun()
         {
             previousPlayerHeldBy.equippedUsableItemQE = false;
-            /*if (gunCoroutine != null)
-            {
-                StopCoroutine(gunCoroutine);
-            }*/
             gunAudio.Stop();
             isReloading = false;
             previousPlayerHeldBy.playerBodyAnimator.SetTrigger("SwitchHoldAnimation");

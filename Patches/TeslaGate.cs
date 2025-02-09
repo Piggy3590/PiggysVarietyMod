@@ -31,22 +31,21 @@ namespace PiggyVarietyMod.Patches
 
         void Start()
         {
-            //this.GetComponent<TerminalAccessibleObject>().terminalCodeEvent.AddListener(ForceTeslaTrigger);
-            telegraphParticle = this.transform.GetChild(0).GetComponent<ParticleSystem>();
-            idleParticle = this.transform.GetChild(1).GetComponent<ParticleSystem>();
+            telegraphParticle = transform.GetChild(0).GetComponent<ParticleSystem>();
+            idleParticle = transform.GetChild(1).GetComponent<ParticleSystem>();
 
-            windUpSource = this.transform.GetChild(4).GetChild(0).GetComponent<AudioSource>();
-            idleSource = this.transform.GetChild(4).GetChild(1).GetComponent<AudioSource>();
-            crackSource = this.transform.GetChild(4).GetChild(2).GetComponent<AudioSource>();
+            windUpSource = transform.GetChild(4).GetChild(0).GetComponent<AudioSource>();
+            idleSource = transform.GetChild(4).GetChild(1).GetComponent<AudioSource>();
+            crackSource = transform.GetChild(4).GetChild(2).GetComponent<AudioSource>();
 
-            killTrigger = this.transform.GetChild(5).gameObject;
+            killTrigger = transform.GetChild(5).gameObject;
             CustomTouchInteractTrigger killTriggerScript = killTrigger.AddComponent<CustomTouchInteractTrigger>();
             killTriggerScript.isKillTrigger = true;
 
-            crackCTI = this.transform.GetChild(2).gameObject.AddComponent<CustomTouchInteractTrigger>();
+            crackCTI = transform.GetChild(2).gameObject.AddComponent<CustomTouchInteractTrigger>();
             crackCTI.teslaGate = this;
 
-            idleCTI = this.transform.GetChild(3).gameObject.AddComponent<CustomTouchInteractTrigger>();
+            idleCTI = transform.GetChild(3).gameObject.AddComponent<CustomTouchInteractTrigger>();
             idleCTI.teslaGate = this;
             idleCTI.isIdleTrigger = true;
             killTrigger.SetActive(false);
@@ -55,7 +54,7 @@ namespace PiggyVarietyMod.Patches
             idleSource.volume = 0.45f * Plugin.teslaSoundVolume;
             crackSource.volume = 0.45f * Plugin.teslaSoundVolume;
 
-            StartCoroutine(ActivateLights(this.transform));
+            StartCoroutine(ActivateLights(transform));
         }
 
         private static IEnumerator ActivateLights(Transform parent)

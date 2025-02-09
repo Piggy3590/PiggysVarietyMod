@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class AxeItem : GrabbableObject
 {
-    public int shovelHitForce = 1;
+    public int axeHitForce = 1;
 
     public bool reelingUp;
 
@@ -16,9 +16,9 @@ public class AxeItem : GrabbableObject
 
     private Coroutine reelingUpCoroutine;
 
-    private RaycastHit[] objectsHitByShovel;
+    private RaycastHit[] objectsHitByAxe;
 
-    private List<RaycastHit> objectsHitByShovelList = new List<RaycastHit>();
+    private List<RaycastHit> objectsHitByAxeList = new List<RaycastHit>();
 
     public AudioClip reelUp;
 
@@ -26,11 +26,11 @@ public class AxeItem : GrabbableObject
 
     public AudioClip[] hitSFX;
 
-    public AudioSource shovelAudio;
+    public AudioSource axeAudio;
 
     private PlayerControllerB previousPlayerHeldBy;
 
-    private int shovelMask = 11012424;
+    private int axeMask = 11012424;
 
     public override void ItemActivate(bool used, bool buttonDown = true)
     {
@@ -40,7 +40,7 @@ public class AxeItem : GrabbableObject
         }
         Debug.Log($"Is player pressing down button?: {buttonDown}");
         isHoldingButton = buttonDown;
-        Debug.Log("PLAYER ACTIVATED ITEM TO HIT WITH SHOVEL. Who sent this log: " + GameNetworkManager.Instance.localPlayerController.gameObject.name);
+        Debug.Log("PLAYER ACTIVATED ITEM TO HIT WITH AXE. Who sent this log: " + GameNetworkManager.Instance.localPlayerController.gameObject.name);
         if (!reelingUp && buttonDown)
         {
             reelingUp = true;
@@ -50,24 +50,24 @@ public class AxeItem : GrabbableObject
             {
                 StopCoroutine(reelingUpCoroutine);
             }
-            reelingUpCoroutine = StartCoroutine(reelUpShovel());
+            reelingUpCoroutine = StartCoroutine(reelUpAxe());
         }
     }
 
-    private IEnumerator reelUpShovel()
+    private IEnumerator reelUpAxe()
     {
         playerHeldBy.activatingItem = true;
         playerHeldBy.twoHanded = true;
-        playerHeldBy.playerBodyAnimator.ResetTrigger("shovelHit");
+        playerHeldBy.playerBodyAnimator.ResetTrigger("axeHit");
         playerHeldBy.playerBodyAnimator.SetBool("reelingUp", value: true);
-        shovelAudio.PlayOneShot(reelUp);
+        axeAudio.PlayOneShot(reelUp);
         ReelUpSFXServerRpc();
         yield return new WaitForSeconds(0.35f);
         yield return new WaitUntil(() => !isHoldingButton || !isHeld);
-        SwingShovel(!isHeld);
+        SwingAxe(!isHeld);
         yield return new WaitForSeconds(0.13f);
         yield return new WaitForEndOfFrame();
-        HitShovel(!isHeld);
+        HitAxe(!isHeld);
         yield return new WaitForSeconds(0.3f);
         reelingUp = false;
         reelingUpCoroutine = null;
@@ -85,7 +85,7 @@ public class AxeItem : GrabbableObject
     {
         if (!IsOwner)
         {
-            shovelAudio.PlayOneShot(reelUp);
+            axeAudio.PlayOneShot(reelUp);
         }
     }
 
@@ -98,56 +98,57 @@ public class AxeItem : GrabbableObject
         base.DiscardItem();
     }
 
-    public void SwingShovel(bool cancel = false)
+    public void SwingAxe(bool cancel = false)
     {
         previousPlayerHeldBy.playerBodyAnimator.SetBool("reelingUp", value: false);
         if (!cancel)
         {
-            shovelAudio.PlayOneShot(swing);
+            axeAudio.PlayOneShot(swing);
             previousPlayerHeldBy.UpdateSpecialAnimationValue(specialAnimation: true, (short)previousPlayerHeldBy.transform.localEulerAngles.y, 0.4f);
         }
     }
 
-    public void HitShovel(bool cancel = false)
+    public void HitAxe(bool cancel = false)
     {
-        if (this.previousPlayerHeldBy == null)
+        
+        if (previousPlayerHeldBy == null)
         {
-            Debug.LogError("Previousplayerheldby is null on this client when HitShovel is called.");
+            Debug.LogError("Previousplayerheldby is null on this client when HitAxe is called.");
             return;
         }
-        this.previousPlayerHeldBy.activatingItem = false;
+        previousPlayerHeldBy.activatingItem = false;
         bool flag = false;
         bool flag2 = false;
         bool flag3 = false;
         int num = -1;
         if (!cancel)
         {
-            this.previousPlayerHeldBy.twoHanded = false;
-            this.objectsHitByShovel = Physics.SphereCastAll(this.previousPlayerHeldBy.gameplayCamera.transform.position + this.previousPlayerHeldBy.gameplayCamera.transform.right * -0.35f, 0.8f, this.previousPlayerHeldBy.gameplayCamera.transform.forward, 1.5f, this.shovelMask, QueryTriggerInteraction.Collide);
-            this.objectsHitByShovelList = this.objectsHitByShovel.OrderBy((RaycastHit x) => x.distance).ToList<RaycastHit>();
+            previousPlayerHeldBy.twoHanded = false;
+            objectsHitByAxe = Physics.SphereCastAll(previousPlayerHeldBy.gameplayCamera.transform.position + previousPlayerHeldBy.gameplayCamera.transform.right * -0.35f, 0.8f, previousPlayerHeldBy.gameplayCamera.transform.forward, 1.5f, axeMask, QueryTriggerInteraction.Collide);
+            objectsHitByAxeList = objectsHitByAxe.OrderBy((RaycastHit x) => x.distance).ToList<RaycastHit>();
 
             List<EnemyAI> list = new List<EnemyAI>();
-            for (int i = 0; i < this.objectsHitByShovelList.Count; i++)
+            for (int i = 0; i < objectsHitByAxeList.Count; i++)
             {
                 IHittable hittable;
                 RaycastHit raycastHit;
-                Vector3 forward = this.previousPlayerHeldBy.gameplayCamera.transform.forward;
+                Vector3 forward = previousPlayerHeldBy.gameplayCamera.transform.forward;
 
-                if (this.objectsHitByShovelList[i].transform.TryGetComponent<IHittable>(out hittable) && !(this.objectsHitByShovelList[i].transform == this.previousPlayerHeldBy.transform) && (this.objectsHitByShovelList[i].point == Vector3.zero || !Physics.Linecast(this.previousPlayerHeldBy.gameplayCamera.transform.position, this.objectsHitByShovelList[i].point, out raycastHit, StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore)))
+                if (objectsHitByAxeList[i].transform.TryGetComponent<IHittable>(out hittable) && !(objectsHitByAxeList[i].transform == previousPlayerHeldBy.transform) && (objectsHitByAxeList[i].point == Vector3.zero || !Physics.Linecast(previousPlayerHeldBy.gameplayCamera.transform.position, objectsHitByAxeList[i].point, out raycastHit, StartOfRound.Instance.walkableSurfacesMask, QueryTriggerInteraction.Ignore)))
                 {
-                    TerrainObstacleTrigger terrainObstacleTrigger = objectsHitByShovelList[i].collider.GetComponentInChildren<TerrainObstacleTrigger>();
+                    TerrainObstacleTrigger terrainObstacleTrigger = objectsHitByAxeList[i].collider.GetComponentInChildren<TerrainObstacleTrigger>();
                     if (terrainObstacleTrigger != null && IsOwner)
                     {
                         RoundManager.Instance.DestroyTreeOnLocalClient(terrainObstacleTrigger.transform.position);
                     }
                 }
 
-                if (this.objectsHitByShovelList[i].transform.gameObject.layer == 8 || this.objectsHitByShovelList[i].transform.gameObject.layer == 11)
+                if (objectsHitByAxeList[i].transform.gameObject.layer == 8 || objectsHitByAxeList[i].transform.gameObject.layer == 11)
                 {
-                    if (!this.objectsHitByShovelList[i].collider.isTrigger)
+                    if (!objectsHitByAxeList[i].collider.isTrigger)
                     {
                         flag = true;
-                        string tag = this.objectsHitByShovelList[i].collider.gameObject.tag;
+                        string tag = objectsHitByAxeList[i].collider.gameObject.tag;
                         for (int j = 0; j < StartOfRound.Instance.footstepSurfaces.Length; j++)
                         {
                             if (StartOfRound.Instance.footstepSurfaces[j].surfaceTag == tag)
@@ -158,12 +159,12 @@ public class AxeItem : GrabbableObject
                         }
                     }
                 }
-                else if (this.objectsHitByShovelList[i].transform.TryGetComponent<IHittable>(out hittable) && !(this.objectsHitByShovelList[i].transform == this.previousPlayerHeldBy.transform) && (this.objectsHitByShovelList[i].point == Vector3.zero || !Physics.Linecast(this.previousPlayerHeldBy.gameplayCamera.transform.position, this.objectsHitByShovelList[i].point, out raycastHit, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore)))
+                else if (objectsHitByAxeList[i].transform.TryGetComponent<IHittable>(out hittable) && !(objectsHitByAxeList[i].transform == previousPlayerHeldBy.transform) && (objectsHitByAxeList[i].point == Vector3.zero || !Physics.Linecast(previousPlayerHeldBy.gameplayCamera.transform.position, objectsHitByAxeList[i].point, out raycastHit, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore)))
                 {
                     flag = true;
                     try
                     {
-                        EnemyAICollisionDetect component = this.objectsHitByShovelList[i].collider.GetComponent<EnemyAICollisionDetect>();
+                        EnemyAICollisionDetect component = objectsHitByAxeList[i].collider.GetComponent<EnemyAICollisionDetect>();
                         if (component != null)
                         {
                             if (component.mainScript == null || list.Contains(component.mainScript))
@@ -171,7 +172,7 @@ public class AxeItem : GrabbableObject
                                 goto IL_361;
                             }
                         }
-                        else if (this.objectsHitByShovelList[i].transform.GetComponent<PlayerControllerB>() != null)
+                        else if (objectsHitByAxeList[i].transform.GetComponent<PlayerControllerB>() != null)
                         {
                             if (flag3)
                             {
@@ -179,7 +180,7 @@ public class AxeItem : GrabbableObject
                             }
                             flag3 = true;
                         }
-                        bool flag4 = hittable.Hit(this.shovelHitForce, forward, this.previousPlayerHeldBy, true, 1);
+                        bool flag4 = hittable.Hit(axeHitForce, forward, previousPlayerHeldBy, true, 1);
                         if (flag4 && component != null)
                         {
                             list.Add(component.mainScript);
@@ -191,7 +192,7 @@ public class AxeItem : GrabbableObject
                     }
                     catch (Exception ex)
                     {
-                        Debug.Log(string.Format("Exception caught when hitting object with shovel from player #{0}: {1}", this.previousPlayerHeldBy.playerClientId, ex));
+                        Debug.Log(string.Format("Exception caught when hitting object with axe from player #{0}: {1}", previousPlayerHeldBy.playerClientId, ex));
                     }
                 }
             IL_361:;
@@ -199,40 +200,40 @@ public class AxeItem : GrabbableObject
         }
         if (flag)
         {
-            RoundManager.PlayRandomClip(this.shovelAudio, this.hitSFX, true, 1f, 0, 1000);
+            RoundManager.PlayRandomClip(axeAudio, hitSFX, true, 1f, 0, 1000);
             FindObjectOfType<RoundManager>().PlayAudibleNoise(transform.position, 17f, 0.8f, 0, false, 0);
             if (!flag2 && num != -1)
             {
-                this.shovelAudio.PlayOneShot(StartOfRound.Instance.footstepSurfaces[num].hitSurfaceSFX);
-                WalkieTalkie.TransmitOneShotAudio(this.shovelAudio, StartOfRound.Instance.footstepSurfaces[num].hitSurfaceSFX, 1f);
+                axeAudio.PlayOneShot(StartOfRound.Instance.footstepSurfaces[num].hitSurfaceSFX);
+                WalkieTalkie.TransmitOneShotAudio(axeAudio, StartOfRound.Instance.footstepSurfaces[num].hitSurfaceSFX, 1f);
             }
-            this.playerHeldBy.playerBodyAnimator.SetTrigger("shovelHit");
-            this.HitShovelServerRpc(num);
+            playerHeldBy.playerBodyAnimator.SetTrigger("axeHit");
+            HitAxeServerRpc(num);
         }
     }
 
     [ServerRpc]
-    public void HitShovelServerRpc(int hitSurfaceID)
+    public void HitAxeServerRpc(int hitSurfaceID)
     {
         {
-            HitShovelClientRpc(hitSurfaceID);
+            HitAxeClientRpc(hitSurfaceID);
         }
     }
     [ClientRpc]
-    public void HitShovelClientRpc(int hitSurfaceID)
+    public void HitAxeClientRpc(int hitSurfaceID)
     {
         if (!IsOwner)
         {
-            RoundManager.PlayRandomClip(shovelAudio, hitSFX);
+            RoundManager.PlayRandomClip(axeAudio, hitSFX);
             if (hitSurfaceID != -1)
             {
-                HitSurfaceWithShovel(hitSurfaceID);
+                HitSurfaceWithAxe(hitSurfaceID);
             }
         }
     }
-    private void HitSurfaceWithShovel(int hitSurfaceID)
+    private void HitSurfaceWithAxe(int hitSurfaceID)
     {
-        shovelAudio.PlayOneShot(StartOfRound.Instance.footstepSurfaces[hitSurfaceID].hitSurfaceSFX);
-        WalkieTalkie.TransmitOneShotAudio(shovelAudio, StartOfRound.Instance.footstepSurfaces[hitSurfaceID].hitSurfaceSFX);
+        axeAudio.PlayOneShot(StartOfRound.Instance.footstepSurfaces[hitSurfaceID].hitSurfaceSFX);
+        WalkieTalkie.TransmitOneShotAudio(axeAudio, StartOfRound.Instance.footstepSurfaces[hitSurfaceID].hitSurfaceSFX);
     }
 }
