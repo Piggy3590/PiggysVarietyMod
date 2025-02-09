@@ -33,7 +33,7 @@ namespace PiggyVarietyMod.Patches
 
         public AudioSource gunBulletsRicochetAudio;
 
-        private Coroutine gunCoroutine;
+        //private Coroutine gunCoroutine;
 
         public AudioClip gunShootSFX;
 
@@ -42,7 +42,7 @@ namespace PiggyVarietyMod.Patches
 
         public AudioClip noAmmoSFX;
 
-        private bool hasHitGroundWithSafetyOff = true;
+        //private bool hasHitGroundWithSafetyOff = true;
 
         private int ammoSlotToUse = -1;
 
@@ -104,7 +104,7 @@ namespace PiggyVarietyMod.Patches
             base.EquipItem();
             previousPlayerHeldBy = playerHeldBy;
             previousPlayerHeldBy.equippedUsableItemQE = true;
-            hasHitGroundWithSafetyOff = false;
+            //hasHitGroundWithSafetyOff = false;
             if (playerHeldBy != null)
             {
                 UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, false);
@@ -131,7 +131,7 @@ namespace PiggyVarietyMod.Patches
         {
             base.GrabItemFromEnemy(enemy);
             heldByEnemy = enemy;
-            hasHitGroundWithSafetyOff = false;
+            //hasHitGroundWithSafetyOff = false;
         }
 
         public override void DiscardItemFromEnemy()
@@ -226,11 +226,11 @@ namespace PiggyVarietyMod.Patches
                 }
             }
             StartCoroutine(FireDelay());
-            bool flag = false;
+            //bool flag = false;
             if (isHeld && playerHeldBy != null && playerHeldBy == GameNetworkManager.Instance.localPlayerController)
             {
                 playerHeldBy.playerBodyAnimator.SetTrigger("ShootM4");
-                flag = true;
+                //flag = true;
             }
             gunAnimator.SetTrigger("Fire");
             gunShootAudio.PlayOneShot(gunShootSFX);
@@ -243,19 +243,19 @@ namespace PiggyVarietyMod.Patches
                 return;
             }
             float num = Vector3.Distance(localPlayerController.transform.position, gunRayPoint.transform.position);
-            bool flag2 = false;
+            Vector3 vector = localPlayerController.playerCollider.ClosestPoint(gunPosition);
+            /*bool flag2 = false;
             int num2 = 0;
             float num3 = 0f;
-            Vector3 vector = localPlayerController.playerCollider.ClosestPoint(gunPosition);
             if (!flag && !Physics.Linecast(gunPosition, vector, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore) && Vector3.Angle(gunForward, vector - gunPosition) < 30f)
             {
-                flag2 = true;
-            }
+               flag2 = true;
+            }*/
             if (num < 12f)
             {
-                num3 = 0.25f;
+                //num3 = 0.25f;
                 HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
-                num2 = 100;
+                //num2 = 100;
             }
 
             Ray ray = new Ray(playerHeldBy.gameplayCamera.transform.position, playerHeldBy.gameplayCamera.transform.forward);
@@ -590,10 +590,10 @@ namespace PiggyVarietyMod.Patches
         private void StopUsingGun()
         {
             previousPlayerHeldBy.equippedUsableItemQE = false;
-            if (gunCoroutine != null)
+            /*if (gunCoroutine != null)
             {
                 StopCoroutine(gunCoroutine);
-            }
+            }*/
             gunAudio.Stop();
             isReloading = false;
             previousPlayerHeldBy.playerBodyAnimator.SetTrigger("SwitchHoldAnimation");

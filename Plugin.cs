@@ -79,8 +79,8 @@ namespace PiggyVarietyMod
         public static int bulbRarity;
         public static int chemicalRarity;
 
-        //public static int gummyLightRarity;
-        //public static int gummyLightPrice;
+        public static int gummyLightRarity;
+        public static int gummyLightPrice;
 
         public static float teslaSpawnWeight;
         public static float teslaSoundVolume;
@@ -139,11 +139,11 @@ namespace PiggyVarietyMod
 
             revolverRarity = (int)Config.Bind<int>("Scrap", "RevolverRarity", 20, "(Default 20) Sets the spawn rarity for the Revolver.").Value;
             revolverAmmoRarity = (int)Config.Bind<int>("Scrap", "RevolverAmmoRarity", 60, "(Default 60) Sets the spawn rarity for the Revolver ammo.").Value;
-            //gummyLightRarity = (int)base.Config.Bind<int>("Scrap", "GummylightAmmoRarity", 0, "(Default 0) Sets the spawn rarity for the Gummy flashlight.").Value;
+            gummyLightRarity = (int)base.Config.Bind<int>("Scrap", "GummylightAmmoRarity", 0, "(Default 0) Sets the spawn rarity for the Gummy flashlight.").Value;
 
             revolverPrice = (int)Config.Bind<int>("Store", "RevolverPrice", -1, "(Recommended -1 or 550) Set the price of the Revolver. If -1, removes the item from the store list.").Value;
             revolverAmmoPrice = (int)Config.Bind<int>("Store", "RevolverAmmoPrice", -1, "(Recommended -1 or 30) Set the price of the Revolver ammo. If -1, removes the item from the store list.").Value;
-            //gummyLightPrice = (int)base.Config.Bind<int>("Store", "GummylightAmmoPrice", 30, "(Recommended 30) Set the price of the Gummy flashlight. If -1, removes the item from the store list.").Value;
+            gummyLightPrice = (int)base.Config.Bind<int>("Store", "GummylightAmmoPrice", 30, "(Recommended 30) Set the price of the Gummy flashlight. If -1, removes the item from the store list.").Value;
             riflePrice = (int)Config.Bind<int>("Store", "RiflePrice", -1, "(Recommended -1 or 1,000~) Set the price of the Rifle (M4A1). If -1, removes the item from the store list.").Value;
             rifleMagPrice = (int)Config.Bind<int>("Store", "RifleMagPrice", -1, "(Recommended -1 or 400~) Set the price of the Rifle magazine. If -1, removes the item from the store list.").Value;
             rifleRarity = (int)Config.Bind<int>("Scrap", "RifleRarity", 20, "(Default 20) Sets the spawn rarity for the Rifle.").Value;
@@ -198,7 +198,7 @@ namespace PiggyVarietyMod
 
             Items.RegisterScrap(bulbItem, bulbRarity, Levels.LevelTypes.All);
             Items.RegisterScrap(chemicalItem, chemicalRarity, Levels.LevelTypes.All);
-            //LethalLib.Modules.Items.RegisterScrap(gummyFlashlight, gummyLightRarity, Levels.LevelTypes.All);
+            Items.RegisterScrap(gummyFlashlight, gummyLightRarity, Levels.LevelTypes.All);
 
             /*
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(revolverPrefab);
@@ -499,12 +499,12 @@ namespace PiggyVarietyMod
             {
                 Items.RegisterShopItem(revolverAmmoItem, revolverAmmoShopNode, revolverAmmoShopNode2, revolverAmmoShopInfo, revolverAmmoPrice);
             }
-            /*
+
             if (gummyLightPrice > -1)
             {
-                LethalLib.Modules.Items.RegisterShopItem(gummyFlashlight, gummylightShopNode, gummylightShopNode2, gummylightShopInfo, gummyLightPrice);
+                Items.RegisterShopItem(gummyFlashlight, gummylightShopNode, gummylightShopNode2, gummylightShopInfo, gummyLightPrice);
             }
-            */
+
             if (riflePrice > -1)
             {
                 Items.RegisterShopItem(arItem, rifleItemShopNode, rifleItemShopNode2, rifleItemShopInfo, riflePrice);

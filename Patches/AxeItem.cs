@@ -14,8 +14,6 @@ public class AxeItem : GrabbableObject
 
     public bool isHoldingButton;
 
-    private RaycastHit rayHit;
-
     private Coroutine reelingUpCoroutine;
 
     private RaycastHit[] objectsHitByShovel;

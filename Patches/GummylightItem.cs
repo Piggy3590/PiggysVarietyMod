@@ -59,6 +59,7 @@ namespace PiggyVarietyMod.Patches
             isInFactory = true;
             grabbable = true;
             flashlightTypeID = 0;
+            itemProperties.batteryUsage = 60;
             Destroy(this.GetComponent<FlashlightItem>());
 
             base.Start();
@@ -225,7 +226,82 @@ namespace PiggyVarietyMod.Patches
 
         public override void Update()
         {
-            base.Update();
+            if (currentUseCooldown >= 0f)
+            {
+                currentUseCooldown -= Time.deltaTime;
+            }
+            if (IsOwner)
+            {
+                if (isBeingUsed && itemProperties.requiresBattery || flashlightBulb.enabled)
+                {
+                    isBeingUsed = true;
+                    if (insertedBattery.charge > 0f)
+                    {
+                        if (!itemProperties.itemIsTrigger)
+                        {
+                            insertedBattery.charge -= Time.deltaTime / itemProperties.batteryUsage;
+                        }
+                    }
+                    else if (!insertedBattery.empty)
+                    {
+                        insertedBattery.empty = true;
+                        if (isBeingUsed)
+                        {
+                            Debug.Log("Use up batteries local");
+                            isBeingUsed = false;
+                            UseUpBatteries();
+                            isSendingItemRPC++;
+                            UseUpItemBatteriesServerRpc();
+                        }
+                    }
+                }
+                if (!wasOwnerLastFrame)
+                {
+                    wasOwnerLastFrame = true;
+                }
+            }
+            else if (wasOwnerLastFrame)
+            {
+                wasOwnerLastFrame = false;
+            }
+            if (!isHeld && parentObject == null)
+            {
+                if (fallTime >= 1f)
+                {
+                    if (!reachedFloorTarget)
+                    {
+                        if (!hasHitGround)
+                        {
+                            PlayDropSFX();
+                            OnHitGround();
+                        }
+                        reachedFloorTarget = true;
+                        if (floorYRot == -1)
+                        {
+                            transform.rotation = Quaternion.Euler(itemProperties.restingRotation.x, transform.eulerAngles.y, itemProperties.restingRotation.z);
+                        }
+                        else
+                        {
+                            transform.rotation = Quaternion.Euler(itemProperties.restingRotation.x, (float)(floorYRot + itemProperties.floorYOffset) + 90f, itemProperties.restingRotation.z);
+                        }
+                    }
+                    transform.localPosition = targetFloorPosition;
+                    return;
+                }
+                reachedFloorTarget = false;
+                FallWithCurve();
+                if (transform.localPosition.y - targetFloorPosition.y < 0.05f && !hasHitGround)
+                {
+                    PlayDropSFX();
+                    OnHitGround();
+                    return;
+                }
+            }
+            else if (isHeld || isHeldByEnemy)
+            {
+                reachedFloorTarget = false;
+            }//------------------------------------------------------------------------------------
+
             int num = ((flashlightInterferenceLevel <= globalFlashlightInterferenceLevel) ? globalFlashlightInterferenceLevel : flashlightInterferenceLevel);
             if (num >= 2)
             {
@@ -244,8 +320,6 @@ namespace PiggyVarietyMod.Patches
         public override void ItemInteractLeftRight(bool right)
         {
             Debug.Log($"r/l activate: {right}");
-
-            base.ItemInteractLeftRight(right);
             if (!right && playerHeldBy != null)
             {
                 flashlightAudio.PlayOneShot(Plugin.flashlightShake);
@@ -254,17 +328,17 @@ namespace PiggyVarietyMod.Patches
                 float newBattery = (insertedBattery.charge * 100) + 8;
                 if (newBattery <= 100)
                 {
-                    insertedBattery = new Battery(false, newBattery * 0.01f);
                     SyncBatteryServerRpc((int)newBattery);
-                }else
+                }
+                else
                 {
-                    insertedBattery = new Battery(false, newBattery * 0.01f);
                     SyncBatteryServerRpc(100);
                 }
                 if (IsOwner)
                 {
                     RoundManager.Instance.PlayAudibleNoise(transform.position, 5f, 0.2f, 0, this.isInElevator && StartOfRound.Instance.hangarDoorsClosed, 941);
                 }
+                isBeingUsed = false;
             }
         }
     }
