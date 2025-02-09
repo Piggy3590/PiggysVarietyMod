@@ -300,7 +300,7 @@ namespace PiggyVarietyMod.Patches
             else if (isHeld || isHeldByEnemy)
             {
                 reachedFloorTarget = false;
-            }//------------------------------------------------------------------------------------
+            }
 
             int num = ((flashlightInterferenceLevel <= globalFlashlightInterferenceLevel) ? globalFlashlightInterferenceLevel : flashlightInterferenceLevel);
             if (num >= 2)
