@@ -1,5 +1,6 @@
 ## 1.3.19
 
+-Added Gummy Flashlight
 - Animator now reverts to original state when you swap or drop the weapons.
 - Fixed the error that occurs when loading the mod.
 - Removed most/all of the code regarding compatibility with BetterEmotes as it was not being used.
