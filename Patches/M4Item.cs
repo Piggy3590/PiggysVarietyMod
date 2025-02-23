@@ -134,7 +134,6 @@ namespace PiggyVarietyMod.Patches
         public override void ItemActivate(bool used, bool buttonDown = false)
         {
             Debug.Log(buttonDown);
-            base.ItemActivate(used, buttonDown);
             isFiring = buttonDown;
             if (!isInspecting && !isReloading && !cantFire && !playerHeldBy.playerBodyAnimator.GetBool("ReloadM4"))
             {
@@ -159,7 +158,12 @@ namespace PiggyVarietyMod.Patches
                 gunPosition = GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.position - GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.up * 0.45f;
                 forward = GameNetworkManager.Instance.localPlayerController.gameplayCamera.transform.forward;
             }
-            ShootGun(gunPosition, forward); ;
+
+            Debug.Log("Calling shoot gun....");
+            ShootGun(gunPosition, forward);
+            Debug.Log("Calling shoot gun and sync");
+            localClientSendingShootGunRPC = true;
+            ShootGunServerRpc(gunPosition, forward);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -200,8 +204,8 @@ namespace PiggyVarietyMod.Patches
             {
                 SetAmmoControlTip(false);
             }
-            CentipedeAI[] array = GameObject.FindObjectsByType<CentipedeAI>(FindObjectsSortMode.None);
-            FlowerSnakeEnemy[] array2 = GameObject.FindObjectsByType<FlowerSnakeEnemy>(FindObjectsSortMode.None);
+            CentipedeAI[] array = FindObjectsByType<CentipedeAI>(FindObjectsSortMode.None);
+            FlowerSnakeEnemy[] array2 = FindObjectsByType<FlowerSnakeEnemy>(FindObjectsSortMode.None);
             for (int i = 0; i < array.Length; i++)
             {
                 if (array[i].clingingToPlayer == playerHeldBy)

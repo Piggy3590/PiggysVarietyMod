@@ -7,6 +7,8 @@ using UnityEngine;
 using System.IO;
 using System.Reflection;
 using LethalLib.Modules;
+using UnityEngine.Rendering.LookDev;
+#pragma warning disable IDE0051 
 
 namespace PiggyVarietyMod
 {
@@ -76,6 +78,9 @@ namespace PiggyVarietyMod
         public static int rifleMagRarity;
         public static bool twoHandedRifle;
 
+        public static int axeRarity;
+        public static int axePrice;
+
         public static int bulbRarity;
         public static int chemicalRarity;
 
@@ -133,6 +138,7 @@ namespace PiggyVarietyMod
             revolverRarity = (int)Config.Bind<int>("Scrap", "RevolverRarity", 20, "(Default 20) Sets the spawn rarity for the Revolver.").Value;
             revolverAmmoRarity = (int)Config.Bind<int>("Scrap", "RevolverAmmoRarity", 60, "(Default 60) Sets the spawn rarity for the Revolver ammo.").Value;
             gummyLightRarity = (int)base.Config.Bind<int>("Scrap", "GummylightAmmoRarity", 0, "(Default 0) Sets the spawn rarity for the Gummy flashlight.").Value;
+            axeRarity = (int)base.Config.Bind<int>("Scrap", "AxeRarity", 0, "(Default 0) Sets the spawn rarity for the Axe.").Value;
 
             revolverPrice = (int)Config.Bind<int>("Store", "RevolverPrice", -1, "(Recommended -1 or 550) Set the price of the Revolver. If -1, removes the item from the store list.").Value;
             revolverAmmoPrice = (int)Config.Bind<int>("Store", "RevolverAmmoPrice", -1, "(Recommended -1 or 30) Set the price of the Revolver ammo. If -1, removes the item from the store list.").Value;
@@ -141,6 +147,7 @@ namespace PiggyVarietyMod
             rifleMagPrice = (int)Config.Bind<int>("Store", "RifleMagPrice", -1, "(Recommended -1 or 400~) Set the price of the Rifle magazine. If -1, removes the item from the store list.").Value;
             rifleRarity = (int)Config.Bind<int>("Scrap", "RifleRarity", 20, "(Default 20) Sets the spawn rarity for the Rifle.").Value;
             rifleMagRarity = (int)Config.Bind<int>("Scrap", "RifleMagRarity", 60, "(Default 60) Sets the spawn rarity for the Rifle magazine.").Value;
+            axePrice = (int)base.Config.Bind<int>("Store", "AxePrice", 45, "(Recommended 45) Set the price of the Axe. If -1, removes the item from the store list.").Value;
 
             bulbRarity = (int)Config.Bind<int>("Scrap", "BulbRarity", 30, "(Default 30) Sets the spawn rarity for the Bulb.").Value;
             chemicalRarity = (int)Config.Bind<int>("Scrap", "ChemicalRarity", 30, "(Default 30) Sets the spawn rarity for the Chemical.").Value;
@@ -192,6 +199,7 @@ namespace PiggyVarietyMod
             Items.RegisterScrap(bulbItem, bulbRarity, Levels.LevelTypes.All);
             Items.RegisterScrap(chemicalItem, chemicalRarity, Levels.LevelTypes.All);
             Items.RegisterScrap(gummyFlashlight, gummyLightRarity, Levels.LevelTypes.All);
+            Items.RegisterScrap(axeItem, axeRarity, Levels.LevelTypes.All);
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
         }
@@ -351,7 +359,7 @@ namespace PiggyVarietyMod
                 axeScript.grabbable = true;
                 axeScript.isInFactory = true;
                 axeScript.grabbableToEnemies = true;
-                axeScript.axeHitForce = 1;
+                axeScript.axeHitForce = 2;
                 axeScript.reelUp = shovelScript.reelUp;
                 axeScript.swing = shovelScript.swing;
                 axeScript.hitSFX = shovelScript.hitSFX;
@@ -479,6 +487,19 @@ namespace PiggyVarietyMod
                 "\n자가발전 손전등입니다.\n그저 평범한 장난감이지만, 배터리가 다 떨어졌을 때 여러분의 어두운 앞길을 비춰 줄 것입니다!\n\n",
                 "\nA self-powered flashlight.\nIt's just a toy, but it'll light up your dark path when the batteries run out!\n\n");
 
+            //Axe
+            TerminalNode axeShopNode = NewTerminalNode(
+                "도끼 주문을 요청하셨습니다. 수량: [variableAmount]. \r\n아이템의 총 가격: [totalCost].\n\nCONFIRM 또는 DENY를 입력하세요.\n\n",
+                "You have requested to order Axe. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n");
+
+            TerminalNode axeShopNode2 = NewTerminalNode(
+                "[variableAmount] 도끼를 주문했습니다. 새 잔액은 [playerCredits]입니다.\n\n우리의 계약자는 작업 중에도 빠른 무료 배송 혜택을 누릴 수 있습니다! 구매한 모든 상품은 1시간마다 대략적인 위치에 도착합니다.\n\n",
+                "Ordered [variableAmount] Axe. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n");
+
+            TerminalNode axeShopInfo = NewTerminalNode(
+                "\n그냥 도끼입니다.\n방어 도구로 사용 가능\n\n",
+                "\nJust an Axe.\nUsable as a defense tool\n\n");
+
             if (revolverPrice > -1)
             {
                 Items.RegisterShopItem(revolverItem, revolverItemShopNode, revolverItemShopNode2, revolverItemShopInfo, revolverPrice);
@@ -500,6 +521,16 @@ namespace PiggyVarietyMod
             if (rifleMagPrice > -1)
             {
                 Items.RegisterShopItem(arMagItem, rifleMagShopNode, rifleMagShopNode2, rifleMagShopInfo, rifleMagPrice);
+            }
+
+            if (rifleMagPrice > -1)
+            {
+                Items.RegisterShopItem(arMagItem, rifleMagShopNode, rifleMagShopNode2, rifleMagShopInfo, rifleMagPrice);
+            }
+
+            if (axePrice > -1)
+            {
+                Items.RegisterShopItem(axeItem, axeShopNode, axeShopNode2, axeShopInfo, axePrice);
             }
         }
 

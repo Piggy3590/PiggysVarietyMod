@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class AxeItem : GrabbableObject
 {
-    public int axeHitForce = 1;
+    public int axeHitForce = 2;
 
     public bool reelingUp;
 

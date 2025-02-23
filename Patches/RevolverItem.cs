@@ -125,7 +125,7 @@ namespace PiggyVarietyMod.Patches
         public override void EquipItem()
         {
             base.EquipItem();
-            SyncRevolverAmmoServerRpc(ammosLoaded);
+            //SyncRevolverAmmoServerRpc(ammosLoaded);
             if (playerHeldBy != null)
             {
                 UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, false);
@@ -171,7 +171,7 @@ namespace PiggyVarietyMod.Patches
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
-            SyncRevolverAmmoServerRpc(ammosLoaded);
+            //SyncRevolverAmmoServerRpc(ammosLoaded);
             base.ItemActivate(used, buttonDown);
             if (!isReloading && !cantFire && !gunAnimator.GetBool("Reloading"))
             {
@@ -406,11 +406,11 @@ namespace PiggyVarietyMod.Patches
             Debug.Log($"r/l activate: {right}");
             if (!right)
             {
-                StartOpenGunServerRpc();
+                //StartOpenGunServerRpc();
             }
             else if (!isCylinderMoving && !isReloading && ammosLoaded < 6 && gunAnimator.GetBool("Reloading"))
             {
-                StartReloadGunServerRpc();
+                //StartReloadGunServerRpc();
             }
         }
 
@@ -684,7 +684,7 @@ namespace PiggyVarietyMod.Patches
 
         private void StopUsingGun()
         {
-            SyncRevolverAmmoServerRpc(ammosLoaded);
+            //SyncRevolverAmmoServerRpc(ammosLoaded);
             isCylinderMoving = false;
             previousPlayerHeldBy.equippedUsableItemQE = false;
             if (isReloading)
