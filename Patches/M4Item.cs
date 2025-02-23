@@ -43,6 +43,7 @@ namespace PiggyVarietyMod.Patches
         private int ammoSlotToUse = -1;
 
         private bool localClientSendingShootGunRPC;
+        private bool localClientSendingReloadGunRPC;
 
         private PlayerControllerB previousPlayerHeldBy;
 
@@ -54,8 +55,6 @@ namespace PiggyVarietyMod.Patches
         private RaycastHit[] playerColliders;
 
         private EnemyAI heldByEnemy;
-
-        private static RuntimeAnimatorController originalPlayerAnimator;
 
         public override void Start()
         {
@@ -88,7 +87,7 @@ namespace PiggyVarietyMod.Patches
             }
             if (Plugin.InputActionInstance.RifleReloadKey.triggered && !isReloading && ammosLoaded < 30)
             {
-                StartReloadGun();
+                StartReloadGunAndSync();
             }
         }
 
@@ -343,15 +342,40 @@ namespace PiggyVarietyMod.Patches
             }
         }
 
-        private void StartReloadGun()
+        private void StartReloadGunAndSync()
         {
             if ((Plugin.customGunInfinityAmmo || ReloadedGun()) && !isReloading)
             {
+                Debug.Log("Calling reload gun....");
                 StartCoroutine(ReloadGunAnimation());
+                Debug.Log("Calling reload gun and sync");
+                localClientSendingReloadGunRPC = true;
+                ReloadGunServerRpc();
             }
             else
             {
                 gunAudio.PlayOneShot(noAmmoSFX);
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ReloadGunServerRpc()
+        {
+            ReloadGunClientRpc();
+        }
+
+        [ClientRpc]
+        public void ReloadGunClientRpc()
+        {
+            Debug.Log("Reload gun client rpc received");
+            if (localClientSendingReloadGunRPC)
+            {
+                localClientSendingReloadGunRPC = false;
+                Debug.Log("localClientSendingReloadGunRPC was true");
+            }
+            else
+            {
+                StartCoroutine(ReloadGunAnimation());
             }
         }
 
@@ -559,12 +583,6 @@ namespace PiggyVarietyMod.Patches
             {
                 if (playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
                 {
-                    if (originalPlayerAnimator != null)
-                    {
-                        Destroy(originalPlayerAnimator);
-                    }
-                    originalPlayerAnimator = Instantiate(player.playerBodyAnimator.runtimeAnimatorController);
-                    originalPlayerAnimator.name = "DefaultPlayerAnimator";
                     if (player == StartOfRound.Instance.localPlayerController)
                     {
                         SaveAnimatorStates(playerBodyAnimator);
@@ -584,7 +602,7 @@ namespace PiggyVarietyMod.Patches
             else
             {
                 SaveAnimatorStates(playerBodyAnimator);
-                playerBodyAnimator.runtimeAnimatorController = originalPlayerAnimator;
+                playerBodyAnimator.runtimeAnimatorController = PlayerControllerBPatch.originalPlayerAnimator;
                 RestoreAnimatorStates(playerBodyAnimator);
                 Plugin.mls.LogInfo("Replace Other Player Animator!");
             }

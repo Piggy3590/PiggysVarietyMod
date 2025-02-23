@@ -71,8 +71,6 @@ namespace PiggyVarietyMod.Patches
 
         private EnemyAI heldByEnemy;
 
-        private static RuntimeAnimatorController originalPlayerAnimator;
-
         public override void Start()
         {
             base.Start();
@@ -406,11 +404,11 @@ namespace PiggyVarietyMod.Patches
             Debug.Log($"r/l activate: {right}");
             if (!right)
             {
-                //StartOpenGunServerRpc();
+                StartOpenGunServerRpc();
             }
             else if (!isCylinderMoving && !isReloading && ammosLoaded < 6 && gunAnimator.GetBool("Reloading"))
             {
-                //StartReloadGunServerRpc();
+                StartReloadGunServerRpc();
             }
         }
 
@@ -712,12 +710,6 @@ namespace PiggyVarietyMod.Patches
             {
                 if (playerBodyAnimator.runtimeAnimatorController != Plugin.playerAnimator && playerBodyAnimator.runtimeAnimatorController != Plugin.otherPlayerAnimator)
                 {
-                    if (originalPlayerAnimator != null)
-                    {
-                        Destroy(originalPlayerAnimator, 1f);
-                    }
-                    originalPlayerAnimator = Instantiate(player.playerBodyAnimator.runtimeAnimatorController);
-                    originalPlayerAnimator.name = "DefaultPlayerAnimator";
                     if (player == StartOfRound.Instance.localPlayerController)
                     {
                         SaveAnimatorStates(playerBodyAnimator);
@@ -737,7 +729,7 @@ namespace PiggyVarietyMod.Patches
             else
             {
                 SaveAnimatorStates(playerBodyAnimator);
-                playerBodyAnimator.runtimeAnimatorController = originalPlayerAnimator;
+                playerBodyAnimator.runtimeAnimatorController = PlayerControllerBPatch.originalPlayerAnimator;
                 RestoreAnimatorStates(playerBodyAnimator);
                 Plugin.mls.LogInfo("Restored Player Animator!");
             }

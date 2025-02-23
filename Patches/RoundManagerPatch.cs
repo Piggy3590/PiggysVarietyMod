@@ -12,10 +12,6 @@ namespace PiggyVarietyMod.Patches
         [HarmonyPatch("Start")]
         private static void Start_Postfix(ref DungeonFlow[] ___dungeonFlowTypes)
         {
-            if (Plugin.translateKorean)
-            {
-                Plugin.gummyFlashlight.itemName = "젤리 손전등";
-            }
         }
 
         static void FindBigDoorRoomInTileSet(TileSet tileSet)

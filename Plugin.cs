@@ -7,8 +7,6 @@ using UnityEngine;
 using System.IO;
 using System.Reflection;
 using LethalLib.Modules;
-using UnityEngine.Rendering.LookDev;
-#pragma warning disable IDE0051 
 
 namespace PiggyVarietyMod
 {
