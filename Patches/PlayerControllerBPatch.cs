@@ -11,9 +11,9 @@ namespace PiggyVarietyMod.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch("Start")]
-        static void Start_Postfix(PlayerControllerB __instance) 
+        static void Start_Postfix(PlayerControllerB __instance == ) 
         {
-            if (originalPlayerAnimator == null)
+            if (originalPlayerAnimator == null && __instance == GameNetworkManager.Instance.localPlayerController)
             {
                 originalPlayerAnimator = GameObject.Instantiate(__instance.playerBodyAnimator.runtimeAnimatorController);
                 originalPlayerAnimator.name = "DefaultPlayerAnimator";
