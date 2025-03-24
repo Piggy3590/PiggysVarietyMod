@@ -575,6 +575,10 @@ namespace PiggyVarietyMod.Patches
             previousPlayerHeldBy.playerBodyAnimator.SetTrigger("SwitchHoldAnimation");
             gunAnimator.SetTrigger("Reset");
             isInspecting = false;
+            if (playerHeldBy != null)
+            {
+                UpdateAnimator(playerHeldBy, playerHeldBy.playerBodyAnimator, true);
+            }
         }
 
         void UpdateAnimator(PlayerControllerB player, Animator playerBodyAnimator, bool restore)

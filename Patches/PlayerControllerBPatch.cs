@@ -10,11 +10,12 @@ namespace PiggyVarietyMod.Patches
         public static RuntimeAnimatorController originalPlayerAnimator;
 
         [HarmonyPostfix]
-        [HarmonyPatch("Start")]
+        [HarmonyPatch("ConnectClientToPlayerObject")]
         static void Start_Postfix(PlayerControllerB __instance) 
         {
-            if (originalPlayerAnimator == null && __instance == GameNetworkManager.Instance.localPlayerController)
+            if (originalPlayerAnimator == null)
             {
+                Plugin.mls.LogInfo("Cloning Player Animation Controller");
                 originalPlayerAnimator = GameObject.Instantiate(__instance.playerBodyAnimator.runtimeAnimatorController);
                 originalPlayerAnimator.name = "DefaultPlayerAnimator";
             }

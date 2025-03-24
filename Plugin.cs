@@ -7,6 +7,7 @@ using UnityEngine;
 using System.IO;
 using System.Reflection;
 using LethalLib.Modules;
+using GameNetcodeStuff;
 
 namespace PiggyVarietyMod
 {
@@ -200,6 +201,27 @@ namespace PiggyVarietyMod
             Items.RegisterScrap(axeItem, axeRarity, Levels.LevelTypes.All);
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
+
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
+            {
+                try
+                {
+                    var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                    foreach (var method in methods)
+                    {
+                        var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                        if (attributes.Length > 0)
+                        {
+                            method.Invoke(null, null);
+                        }
+                    }
+                }
+                catch
+                {
+                    mls.LogInfo("Skipping Netcode Class");
+                }
+            }
+            mls.LogInfo("Netcode Successfully Patched!");
         }
 
         private void LoadAssets()
