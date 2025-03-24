@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -50,7 +48,7 @@ namespace PiggyVarietyMod.Patches
             grabbableToEnemies = true;
             flashlightBulb = transform.GetChild(0).GetComponent<Light>();
             flashlightBulbGlow = transform.GetChild(1).GetComponent<Light>();
-            flashlightAudio = this.GetComponent<AudioSource>();
+            flashlightAudio = GetComponent<AudioSource>();
             flashlightClips = new AudioClip[] { Plugin.gummylightClick };
             outOfBatteriesClip = Plugin.gummylightOutage;
             flashlightFlicker = Plugin.flashFlicker;
@@ -61,7 +59,8 @@ namespace PiggyVarietyMod.Patches
             isInFactory = true;
             grabbable = true;
             flashlightTypeID = 0;
-            Destroy(this.GetComponent<FlashlightItem>());
+            itemProperties.batteryUsage = 60;
+            Destroy(GetComponent<FlashlightItem>());
 
             base.Start();
             initialIntensity = flashlightBulb.intensity;
@@ -74,7 +73,7 @@ namespace PiggyVarietyMod.Patches
                 SwitchFlashlight(used);
             }
             flashlightAudio.PlayOneShot(flashlightClips[Random.Range(0, flashlightClips.Length)]);
-            RoundManager.Instance.PlayAudibleNoise(base.transform.position, 7f, 0.4f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
+            RoundManager.Instance.PlayAudibleNoise(transform.position, 7f, 0.4f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
         }
 
         public override void UseUpBatteries()
@@ -82,13 +81,13 @@ namespace PiggyVarietyMod.Patches
             base.UseUpBatteries();
             SwitchFlashlight(on: false);
             flashlightAudio.PlayOneShot(outOfBatteriesClip, 1f);
-            RoundManager.Instance.PlayAudibleNoise(base.transform.position, 13f, 0.65f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
+            RoundManager.Instance.PlayAudibleNoise(transform.position, 13f, 0.65f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed);
         }
 
         public override void PocketItem()
         {
             previousPlayerHeldBy.equippedUsableItemQE = false;
-            if (!base.IsOwner)
+            if (!IsOwner)
             {
                 base.PocketItem();
                 return;
@@ -118,7 +117,7 @@ namespace PiggyVarietyMod.Patches
                 Debug.Log("Could not find what player was holding this flashlight item");
             }
 
-            if (base.IsOwner && playerHeldBy != null)
+            if (IsOwner && playerHeldBy != null)
             {
                 playerHeldBy.equippedUsableItemQE = false;
             }
@@ -135,7 +134,7 @@ namespace PiggyVarietyMod.Patches
         [ClientRpc]
         public void PocketFlashlightClientRpc(bool stillUsingFlashlight)
         {
-            if (base.IsOwner)
+            if (IsOwner)
             {
                 return;
             }
@@ -190,7 +189,7 @@ namespace PiggyVarietyMod.Patches
         public void SwitchFlashlight(bool on)
         {
             isBeingUsed = on;
-            if (!base.IsOwner)
+            if (!IsOwner)
             {
                 Debug.Log($"Flashlight click. playerheldby null?: {playerHeldBy != null}");
                 Debug.Log($"Flashlight being disabled or enabled: {on}");
@@ -227,13 +226,88 @@ namespace PiggyVarietyMod.Patches
 
         public override void Update()
         {
-            base.Update();
-            int num = ((flashlightInterferenceLevel <= globalFlashlightInterferenceLevel) ? globalFlashlightInterferenceLevel : flashlightInterferenceLevel);
-            if (num >= 2)
+            if (currentUseCooldown >= 0f)
+            {
+                currentUseCooldown -= Time.deltaTime;
+            }
+            if (IsOwner)
+            {
+                if (isBeingUsed && itemProperties.requiresBattery || flashlightBulb.enabled)
+                {
+                    isBeingUsed = true;
+                    if (insertedBattery.charge > 0f)
+                    {
+                        if (!itemProperties.itemIsTrigger)
+                        {
+                            insertedBattery.charge -= Time.deltaTime / itemProperties.batteryUsage;
+                        }
+                    }
+                    else if (!insertedBattery.empty)
+                    {
+                        insertedBattery.empty = true;
+                        if (isBeingUsed)
+                        {
+                            Debug.Log("Use up batteries local");
+                            isBeingUsed = false;
+                            UseUpBatteries();
+                            isSendingItemRPC++;
+                            UseUpItemBatteriesServerRpc();
+                        }
+                    }
+                }
+                if (!wasOwnerLastFrame)
+                {
+                    wasOwnerLastFrame = true;
+                }
+            }
+            else if (wasOwnerLastFrame)
+            {
+                wasOwnerLastFrame = false;
+            }
+            if (!isHeld && parentObject == null)
+            {
+                if (fallTime >= 1f)
+                {
+                    if (!reachedFloorTarget)
+                    {
+                        if (!hasHitGround)
+                        {
+                            PlayDropSFX();
+                            OnHitGround();
+                        }
+                        reachedFloorTarget = true;
+                        if (floorYRot == -1)
+                        {
+                            transform.rotation = Quaternion.Euler(itemProperties.restingRotation.x, transform.eulerAngles.y, itemProperties.restingRotation.z);
+                        }
+                        else
+                        {
+                            transform.rotation = Quaternion.Euler(itemProperties.restingRotation.x, (float)(floorYRot + itemProperties.floorYOffset) + 90f, itemProperties.restingRotation.z);
+                        }
+                    }
+                    transform.localPosition = targetFloorPosition;
+                    return;
+                }
+                reachedFloorTarget = false;
+                FallWithCurve();
+                if (transform.localPosition.y - targetFloorPosition.y < 0.05f && !hasHitGround)
+                {
+                    PlayDropSFX();
+                    OnHitGround();
+                    return;
+                }
+            }
+            else if (isHeld || isHeldByEnemy)
+            {
+                reachedFloorTarget = false;
+            }
+
+            int flashlightIntensity = ((flashlightInterferenceLevel <= globalFlashlightInterferenceLevel) ? globalFlashlightInterferenceLevel : flashlightInterferenceLevel);
+            if (flashlightIntensity >= 2)
             {
                 flashlightBulb.intensity = 0f;
             }
-            else if (num == 1)
+            else if (flashlightIntensity == 1)
             {
                 flashlightBulb.intensity = Random.Range(0f, 200f);
             }
@@ -246,8 +320,6 @@ namespace PiggyVarietyMod.Patches
         public override void ItemInteractLeftRight(bool right)
         {
             Debug.Log($"r/l activate: {right}");
-
-            base.ItemInteractLeftRight(right);
             if (!right && playerHeldBy != null)
             {
                 flashlightAudio.PlayOneShot(Plugin.flashlightShake);
@@ -256,17 +328,17 @@ namespace PiggyVarietyMod.Patches
                 float newBattery = (insertedBattery.charge * 100) + 8;
                 if (newBattery <= 100)
                 {
-                    insertedBattery = new Battery(false, newBattery * 0.01f);
                     SyncBatteryServerRpc((int)newBattery);
-                }else
+                }
+                else
                 {
-                    insertedBattery = new Battery(false, newBattery * 0.01f);
                     SyncBatteryServerRpc(100);
                 }
-                if (base.IsOwner)
+                if (IsOwner)
                 {
-                    RoundManager.Instance.PlayAudibleNoise(base.transform.position, 5f, 0.2f, 0, this.isInElevator && StartOfRound.Instance.hangarDoorsClosed, 941);
+                    RoundManager.Instance.PlayAudibleNoise(transform.position, 5f, 0.2f, 0, isInElevator && StartOfRound.Instance.hangarDoorsClosed, 941);
                 }
+                isBeingUsed = false;
             }
         }
     }

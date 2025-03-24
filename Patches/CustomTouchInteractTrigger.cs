@@ -37,24 +37,12 @@ namespace PiggyVarietyMod.Patches
                 if (enemyDetection.transform.TryGetComponent<IHittable>(out hittable))
                 {
                     Plugin.mls.LogInfo("Tesla gate detected enemy: " + enemyDetection.mainScript.enemyType.enemyName + ", Idle: " + isIdleTrigger + ", Kill: " + isKillTrigger);
-                    if (isIdleTrigger)
-                    {
-                        /*
-                        teslaGate.activateList.Add(collider.gameObject);
-                        */
-                    }
                     if (isKillTrigger)
                     {
                         if (enemyDetection != null && enemyDetection.mainScript != null && enemyDetection.mainScript.IsOwner && enemyDetection.mainScript.enemyType.canDie && !enemyDetection.mainScript.isEnemyDead)
                         { 
                             hittable.Hit(5, Vector3.zero, null, true, -1);
                         }
-                    }
-                    else
-                    {
-                        /*
-                        teslaGate.engagingList.Add(collider.gameObject);
-                        */
                     }
                 }
             }
@@ -92,18 +80,6 @@ namespace PiggyVarietyMod.Patches
                     teslaGate.activateList.Remove(collider.gameObject);
                 }
             }
-
-            /*
-            if (collider.transform.parent.GetComponent<EnemyAICollisionDetect>() != null)
-            {
-                EnemyAICollisionDetect enemyDetection = collider.gameObject.GetComponent<EnemyAICollisionDetect>();
-                teslaGate.engagingList.Remove(collider.gameObject);
-                if (isIdleTrigger)
-                {
-                    teslaGate.activateList.Remove(collider.gameObject);
-                }
-            }
-            */
         }
     }
 }

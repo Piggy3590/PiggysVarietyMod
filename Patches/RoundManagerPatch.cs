@@ -12,40 +12,6 @@ namespace PiggyVarietyMod.Patches
         [HarmonyPatch("Start")]
         private static void Start_Postfix(ref DungeonFlow[] ___dungeonFlowTypes)
         {
-            if (Plugin.translateKorean)
-            {
-                Plugin.gummyFlashlight.itemName = "젤리 손전등";
-            }
-            /*
-            Plugin.mls.LogInfo("TESTING flow: " + ___dungeonFlowTypes[0]);
-            Plugin.mls.LogInfo("TESTING archetype: " + ___dungeonFlowTypes[0].Lines[0].DungeonArchetypes[0]);
-            Plugin.mls.LogInfo("TESTING archetype name: " + ___dungeonFlowTypes[0].Lines[0].DungeonArchetypes[0].name);
-            Plugin.mls.LogInfo("TESTING flow namne: " + ___dungeonFlowTypes[0].name);
-            foreach (DungeonFlow dungeonFlow in ___dungeonFlowTypes)
-            {
-                Plugin.mls.LogInfo("Found DungeonFlow: " + dungeonFlow.ToString());
-                if (dungeonFlow.Lines != null)
-                {
-                    foreach (GraphLine line in dungeonFlow.Lines)
-                    {
-                        Plugin.mls.LogInfo("[TESLA GATE] Finding Dungeon Archetype in " + dungeonFlow.name);
-                        if (line.DungeonArchetypes != null)
-                        {
-                            foreach (DungeonArchetype archetype in line.DungeonArchetypes)
-                            {
-                                if (archetype.TileSets != null)
-                                {
-                                    foreach (TileSet tileSet in archetype.TileSets)
-                                    {
-                                        FindBigDoorRoomInTileSet(tileSet);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            */
         }
 
         static void FindBigDoorRoomInTileSet(TileSet tileSet)
