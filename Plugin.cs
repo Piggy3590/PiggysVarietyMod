@@ -423,7 +423,7 @@ namespace PiggyVarietyMod
             {
                 revolverAmmoItem.itemName = "총알";
                 revolverItem.itemName = "리볼버";
-                gummyFlashlight.itemName = "젤리";
+                gummyFlashlight.itemName = "젤리 손전등";
                 arMagItem.itemName = "탄창";
                 arItem.itemName = "소총";
                 axeItem.itemName = "도끼";
@@ -509,15 +509,15 @@ namespace PiggyVarietyMod
 
             //Axe
             TerminalNode axeShopNode = NewTerminalNode(
-                "도끼 주문을 요청하셨습니다. 수량: [variableAmount]. \r\n아이템의 총 가격: [totalCost].\n\nCONFIRM 또는 DENY를 입력하세요.\n\n",
+                "도끼를 주문하려고 합니다. 수량: [variableAmount]. \r\n아이템의 총 가격: [totalCost].\n\nCONFIRM 또는 DENY를 입력하세요.\n\n",
                 "You have requested to order Axe. Amount: [variableAmount]. \r\nTotal cost of items: [totalCost].\n\nPlease CONFIRM or DENY.\n\n");
 
             TerminalNode axeShopNode2 = NewTerminalNode(
-                "[variableAmount] 도끼를 주문했습니다. 새 잔액은 [playerCredits]입니다.\n\n우리의 계약자는 작업 중에도 빠른 무료 배송 혜택을 누릴 수 있습니다! 구매한 모든 상품은 1시간마다 대략적인 위치에 도착합니다.\n\n",
+                "[variableAmount] 도끼를 주문했습니다. 당신의 현재 소지금은 [playerCredits]입니다.\n\n우리의 계약자는 작업 중에도 빠른 무료 배송 혜택을 누릴 수 있습니다! 구매한 모든 상품은 1시간마다 대략적인 위치에 도착합니다.\n\n",
                 "Ordered [variableAmount] Axe. Your new balance is [playerCredits].\n\nOur contractors enjoy fast, free shipping while on the job! Any purchased items will arrive hourly at your approximate location.\n\n");
 
             TerminalNode axeShopInfo = NewTerminalNode(
-                "\n그냥 도끼입니다.\n방어 도구로 사용 가능\n\n",
+                "\n일반적인 도끼입니다.\n자기 방어 도구로도 사용할 수 있습니다\n\n",
                 "\nJust an Axe.\nUsable as a defense tool\n\n");
 
             if (revolverPrice > -1)
